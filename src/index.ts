@@ -4,6 +4,7 @@ import { etag } from "hono/etag";
 import type { core } from "zod";
 import { builder } from "./builder";
 import { GitHubError } from "./github";
+import { logRequest } from "./log";
 import { cardQuery, repoParams } from "./options";
 import { renderError } from "./render";
 import { renderRepoCard } from "./repo-card";
@@ -18,7 +19,10 @@ function svg(c: Context, body: string, cacheControl = CACHE_OK) {
   return c.body(body);
 }
 
-const errorSvg = (c: Context, message: string) => svg(c, renderError(message), CACHE_ERROR);
+function errorSvg(c: Context, message: string) {
+  logRequest(`fail ${c.req.path}: ${message}`);
+  return svg(c, renderError(message), CACHE_ERROR);
+}
 
 const onInvalid = (result: { success: boolean; error?: core.$ZodError }, c: Context) => {
   if (result.success || !result.error) return;
@@ -38,7 +42,9 @@ app.get(
   zValidator("query", cardQuery, onInvalid),
   async (c) => {
     const { owner, repo } = c.req.valid("param");
-    return svg(c, await renderRepoCard(owner, repo, c.req.valid("query")));
+    const body = await renderRepoCard(owner, repo, c.req.valid("query"));
+    logRequest(`ok   ${c.req.path}`);
+    return svg(c, body);
   },
 );
 

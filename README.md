@@ -45,5 +45,6 @@ bun run typecheck
 ```bash
 curl -o docker-compose.yml https://raw.githubusercontent.com/realChriss/repora/main/docker-compose.prod.yml
 nano docker-compose.yml   # paste your GITHUB_TOKEN
+mkdir -m 777 logs   # request logs, must exist and be writable before the first start
 docker compose up -d
 ```

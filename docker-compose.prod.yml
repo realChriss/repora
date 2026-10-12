@@ -7,3 +7,5 @@ services:
       - "3000:3000"
     environment:
       - GITHUB_TOKEN= # paste your token after =
+    volumes:
+      - ./logs:/app/logs
