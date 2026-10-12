@@ -8,6 +8,7 @@ RUN bun install --frozen-lockfile --production
 
 COPY tsconfig.json ./
 COPY src ./src
+COPY assets/icon.png ./assets/
 RUN mkdir logs && chown bun logs
 
 USER bun

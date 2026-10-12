@@ -1,4 +1,4 @@
-import { Hono } from "hono";
+import { Hono, type Context } from "hono";
 import { fontsourceFile } from "../render/fonts";
 import { builderPage } from "./page";
 
@@ -36,7 +36,13 @@ function loadAssets(): Promise<Assets> {
 
 export const builder = new Hono();
 
-builder.get("/", async (c) => c.html(builderPage((await loadAssets()).version)));
+// Built from the request so self-hosted instances link to themselves; proxies like Cloudflare pass the scheme in x-forwarded-proto.
+function publicOrigin(c: Context) {
+  const url = new URL(c.req.url);
+  return `${c.req.header("x-forwarded-proto") ?? url.protocol.slice(0, -1)}://${url.host}`;
+}
+
+builder.get("/", async (c) => c.html(builderPage((await loadAssets()).version, publicOrigin(c))));
 
 builder.get("/assets/builder.js", async (c) => {
   c.header("Content-Type", "text/javascript; charset=utf-8");
@@ -54,6 +60,12 @@ builder.get("/favicon.svg", (c) => {
   c.header("Content-Type", "image/svg+xml");
   c.header("Cache-Control", "public, max-age=86400");
   return c.body(Bun.file(new URL("./favicon.svg", import.meta.url)).stream());
+});
+
+builder.get("/icon.png", (c) => {
+  c.header("Content-Type", "image/png");
+  c.header("Cache-Control", "public, max-age=86400");
+  return c.body(Bun.file(new URL("../../assets/icon.png", import.meta.url)).stream());
 });
 
 builder.get("/assets/fonts/:file", (c) => {
