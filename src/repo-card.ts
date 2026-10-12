@@ -20,11 +20,10 @@ async function resolveIcon(repo: Repo, path: string | undefined): Promise<Icon> 
 }
 
 function toContent(repo: Repo, query: CardQuery, icon: Icon | undefined): CardContent {
-  const description = query.description ?? repo.description;
   return {
-    owner: query.show_owner && !query.title ? repo.owner : undefined,
-    name: query.title ?? repo.name,
-    description: query.show_description && description ? description : undefined,
+    owner: query.show_owner ? repo.owner : undefined,
+    name: repo.name,
+    description: query.show_description && repo.description ? repo.description : undefined,
     language: query.show_language && repo.language ? repo.language : undefined,
     stars: query.show_stars ? repo.stars : undefined,
     forks: query.show_forks ? repo.forks : undefined,

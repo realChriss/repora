@@ -7,6 +7,4 @@ import { tinted } from "./tinted";
 import type { StyleName } from "../../card-options";
 import type { Style } from "./types";
 
-export type { StyleName } from "../../card-options";
-
 export const styles: Record<StyleName, Style> = { acrylic, rim, tinted, glow, bar, solid };

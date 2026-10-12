@@ -191,14 +191,8 @@ export function builderPage(version: string) {
             </Field>
 
             <details class="more">
-              <summary>Text and colors</summary>
+              <summary>Custom colors</summary>
               <div class="more-body">
-                <Field id="title" label="Title" hint="Replaces owner/repo">
-                  <input id="title" name="title" maxlength={100} aria-describedby="title-hint" />
-                </Field>
-                <Field id="description" label="Description" hint="Replaces the GitHub description">
-                  <textarea id="description" name="description" rows={2} maxlength={300} aria-describedby="description-hint" />
-                </Field>
                 <div class="color-grid">
                   <ColorField id="bg" label="Background" />
                   <ColorField id="fg" label="Text" />

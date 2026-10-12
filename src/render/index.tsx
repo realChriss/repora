@@ -1,11 +1,11 @@
 import type { Child } from "hono/jsx";
+import type { Layout, StyleName } from "../card-options";
 import { layoutCard } from "./card";
 import { fontFaceCss, fontStack, measure } from "./fonts";
 import type { CardContent, Sized, Theme } from "./parts";
 import { layoutPill } from "./pill";
 import { ELLIPSIS, wrapLines } from "./text";
-import { styles, type StyleName } from "./styles";
-import type { Layout } from "./styles/types";
+import { styles } from "./styles";
 
 export type { CardContent } from "./parts";
 

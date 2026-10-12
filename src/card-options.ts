@@ -2,6 +2,7 @@ export const STYLE_NAMES = ["acrylic", "rim", "tinted", "glow", "bar", "solid"] 
 export type StyleName = (typeof STYLE_NAMES)[number];
 
 export const LAYOUTS = ["card", "pill"] as const;
+export type Layout = (typeof LAYOUTS)[number];
 
 export const FLAGS = ["show_icon", "show_owner", "show_description", "show_language", "show_stars", "show_forks"] as const;
 export type Flag = (typeof FLAGS)[number];

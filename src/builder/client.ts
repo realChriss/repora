@@ -16,7 +16,6 @@ const field = <T extends HTMLElement = HTMLInputElement>(name: string) =>
   form.elements.namedItem(name) as unknown as T;
 
 const HEX_FIELDS = ["accent", "bg", "fg", "muted"] as const;
-const TEXT_FIELDS = ["icon", "title", "description"] as const;
 
 interface Card {
   repo: string;
@@ -66,10 +65,8 @@ function cardParams(): URLSearchParams {
   const width = data.get("width");
   if (width && Number(width) !== DEFAULTS.width) params.set("width", String(width));
 
-  for (const key of TEXT_FIELDS) {
-    const value = String(data.get(key) ?? "").trim();
-    if (value) params.set(key, value);
-  }
+  const icon = String(data.get("icon") ?? "").trim();
+  if (icon) params.set("icon", icon);
 
   for (const flag of FLAGS) {
     if (!data.has(flag)) params.set(flag, "false");
@@ -148,12 +145,11 @@ function restore(params: URLSearchParams) {
     const control = form.elements.namedItem(key);
     if (control instanceof RadioNodeList) control.value = value;
     else if (control instanceof HTMLInputElement && control.type === "checkbox") control.checked = value !== "false";
-    else if (control instanceof HTMLInputElement || control instanceof HTMLTextAreaElement) {
+    else if (control instanceof HTMLInputElement) {
       control.value = HEX_FIELDS.includes(key as (typeof HEX_FIELDS)[number]) ? `#${value}` : value;
     }
   }
-  const hasMoreOptions = ["bg", "fg", "muted", "title", "description"].some((key) => params.has(key));
-  if (hasMoreOptions) form.querySelector("details")?.setAttribute("open", "");
+  if (["bg", "fg", "muted"].some((key) => params.has(key))) form.querySelector("details")?.setAttribute("open", "");
   syncPicker();
 }
 

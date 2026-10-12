@@ -6,7 +6,7 @@ import { STYLE_NAMES } from "./card-options";
 
 const realFetch = globalThis.fetch;
 
-function mockGitHub(status = 200) {
+function mockGitHub(status = 200, repo: Record<string, unknown> = {}) {
   const fetchMock = mock(async (url: string | URL | Request) => {
     if (String(url).startsWith("https://raw.githubusercontent.com/")) {
       return new Response(new Uint8Array([137, 80, 78, 71]), { headers: { "content-type": "image/png" } });
@@ -20,6 +20,7 @@ function mockGitHub(status = 200) {
       stargazers_count: 21000,
       forks_count: 600,
       default_branch: "main",
+      ...repo,
     });
   });
   globalThis.fetch = fetchMock as unknown as typeof fetch;
@@ -84,28 +85,34 @@ test("reports GitHub rate limiting", async () => {
   expect(await (await app.request("/honojs/hono")).text()).toContain("GitHub rate limit reached");
 });
 
+test("reports GitHub timeouts", async () => {
+  globalThis.fetch = (async () => {
+    throw new DOMException("timed out", "TimeoutError");
+  }) as unknown as typeof fetch;
+  expect(await (await app.request("/honojs/hono")).text()).toContain("GitHub is not responding");
+});
+
 test("renders repos without description or language", async () => {
-  globalThis.fetch = (async () =>
-    Response.json({
-      name: "empty",
-      owner: { login: "someone" },
-      description: null,
-      language: null,
-      stargazers_count: 0,
-      forks_count: 0,
-      default_branch: "main",
-    })) as unknown as typeof fetch;
+  mockGitHub(200, {
+    name: "empty",
+    owner: { login: "someone" },
+    description: null,
+    language: null,
+    stargazers_count: 0,
+    forks_count: 0,
+  });
   const body = await (await app.request("/someone/empty?style=tinted")).text();
   expect(body).toContain("someone/empty");
   expect(body).toContain("0 forks");
 });
 
-test("falls back to the monogram when the icon is too large", async () => {
+test("falls back to the monogram when a streamed icon exceeds the cap", async () => {
   mockGitHub();
   const apiFetch = globalThis.fetch;
+  const chunk = new Uint8Array(600 * 1024);
   globalThis.fetch = (async (url: string) =>
     String(url).startsWith("https://raw.githubusercontent.com/")
-      ? new Response(new Uint8Array(1024 * 1024 + 1))
+      ? new Response(new Blob([chunk, chunk]).stream())
       : apiFetch(url)) as unknown as typeof fetch;
   const body = await (await app.request("/honojs/hono?icon=big.png")).text();
   expect(body).not.toContain("data:image/png");
@@ -156,7 +163,7 @@ test("scopes svg ids per card so inlined cards do not collide", async () => {
 });
 
 test("right-aligns right-to-left descriptions", async () => {
-  mockGitHub();
-  const body = await (await app.request(`/honojs/hono?description=${encodeURIComponent("שלום עולם")}`)).text();
+  mockGitHub(200, { description: "שלום עולם" });
+  const body = await (await app.request("/honojs/hono")).text();
   expect(body).toContain('text-anchor="end"');
 });

@@ -1,7 +1,6 @@
 import type { FC } from "hono/jsx";
+import type { Layout } from "../../card-options";
 import type { FontName, FontWeight } from "../fonts";
-
-export type Layout = "card" | "pill";
 
 export interface Colors {
   bg: string;

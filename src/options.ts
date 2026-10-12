@@ -37,8 +37,6 @@ export const cardQuery = z.object({
     .max(WIDTH.max, widthMessage)
     .default(DEFAULTS.width),
   icon: repoPath.optional(),
-  title: z.string().max(100, "must be at most 100 characters").optional(),
-  description: z.string().max(300, "must be at most 300 characters").optional(),
   ...(Object.fromEntries(FLAGS.map((name) => [name, flag])) as Record<Flag, typeof flag>),
 });
 
