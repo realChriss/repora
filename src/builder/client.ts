@@ -19,7 +19,6 @@ const HEX_FIELDS = ["accent", "bg", "fg", "muted"] as const;
 
 interface Card {
   repo: string;
-  params: URLSearchParams;
   url: string;
 }
 
@@ -81,7 +80,7 @@ function buildCard(): Card | null {
   if (!repo) return null;
 
   const params = cardParams();
-  return { repo, params, url: `${location.origin}/${repo}${params.size ? `?${params}` : ""}` };
+  return { repo, url: `${location.origin}/${repo}${params.size ? `?${params}` : ""}` };
 }
 
 function snippetFor(card: Card, format: Format): string {
@@ -135,22 +134,6 @@ function update() {
   showPreview(card);
   snippet.value = card ? snippetFor(card, selectedFormat()) : "";
   copyButton.disabled = !card;
-
-  const pageQuery = card ? new URLSearchParams([["repo", card.repo], ...card.params]) : new URLSearchParams();
-  history.replaceState(null, "", pageQuery.size ? `?${pageQuery}` : location.pathname);
-}
-
-function restore(params: URLSearchParams) {
-  for (const [key, value] of params) {
-    const control = form.elements.namedItem(key);
-    if (control instanceof RadioNodeList) control.value = value;
-    else if (control instanceof HTMLInputElement && control.type === "checkbox") control.checked = value !== "false";
-    else if (control instanceof HTMLInputElement) {
-      control.value = HEX_FIELDS.includes(key as (typeof HEX_FIELDS)[number]) ? `#${value}` : value;
-    }
-  }
-  if (["bg", "fg", "muted"].some((key) => params.has(key))) form.querySelector("details")?.setAttribute("open", "");
-  syncPicker();
 }
 
 function syncPicker() {
@@ -209,5 +192,4 @@ copyButton.addEventListener("click", async () => {
   copyTimer = setTimeout(() => (copyButton.textContent = "Copy"), 1600);
 });
 
-restore(new URLSearchParams(location.search));
 update();

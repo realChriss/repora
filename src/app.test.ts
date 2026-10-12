@@ -132,7 +132,7 @@ test("serves the builder page and its assets", async () => {
 
   const script = await app.request("/assets/builder.js");
   expect(script.headers.get("content-type")).toContain("javascript");
-  expect(await script.text()).toContain("history.replaceState");
+  expect(await script.text()).toContain("#preview-image");
 
   const css = await app.request("/assets/builder.css");
   expect(css.headers.get("content-type")).toContain("text/css");
