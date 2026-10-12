@@ -6,4 +6,4 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - GITHUB_TOKEN # add your token
+      - GITHUB_TOKEN= # paste your token after =

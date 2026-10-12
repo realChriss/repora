@@ -2,7 +2,7 @@
 
 SVG cards for a GitHub repository. You can embed them in a README.
 
-<a href="https://repora.am1v.wtf"><img src="docs/cards.webp" width="488" alt="repora card for honojs/hono, cycling through the six styles" /></a>
+<a href="https://repora.am1v.wtf"><img src="assets/cards.webp" width="488" alt="repora card for honojs/hono, cycling through the six styles" /></a>
 
 **Create your card at [repora.am1v.wtf](https://repora.am1v.wtf).** Enter a repo, adjust the style with a live preview, and copy the Markdown, URL or HTML.
 
@@ -39,3 +39,11 @@ bun run typecheck
 ```
 
 `PORT` defaults to 3000.
+
+### Deploy with Docker
+
+```bash
+curl -o docker-compose.yml https://raw.githubusercontent.com/realChriss/repora/main/docker-compose.prod.yml
+nano docker-compose.yml   # paste your GITHUB_TOKEN
+docker compose up -d
+```
