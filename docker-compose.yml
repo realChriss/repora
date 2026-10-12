@@ -1,0 +1,8 @@
+services:
+  repora:
+    build: .
+    container_name: repora
+    ports:
+      - "3000:3000"
+    environment:
+      - GITHUB_TOKEN # add your token
