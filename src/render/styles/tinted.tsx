@@ -1,4 +1,4 @@
-import { mix } from "../color";
+import { ensureContrast, mix } from "../color";
 import { outline } from "./shape";
 import type { Style } from "./types";
 
@@ -6,17 +6,22 @@ const BASE = "#0e1014";
 
 export const tinted: Style = {
   font: "plex",
-  colors: (accent) => ({
-    bg: mix(accent, BASE, 0.16),
-    fg: "#eef0f2",
-    title: "#eef0f2",
-    muted: "#b7bcc4",
-    description: mix(accent, "#b7bcc4", 0.25),
-    star: accent,
-    monogramBg: mix(accent, BASE, 0.3),
-    monogramFg: accent,
-    chip: mix(accent, BASE, 0.22),
-  }),
+  colors: (accent) => {
+    const bg = mix(accent, BASE, 0.16);
+    const chip = mix(accent, BASE, 0.22);
+    const monogramBg = mix(accent, BASE, 0.3);
+    return {
+      bg,
+      fg: "#eef0f2",
+      title: "#eef0f2",
+      muted: "#b7bcc4",
+      description: ensureContrast(mix(accent, "#b7bcc4", 0.25), bg),
+      star: ensureContrast(accent, chip),
+      monogramBg,
+      monogramFg: ensureContrast(accent, monogramBg),
+      chip,
+    };
+  },
   card: {
     padding: { top: 20, x: 22, bottom: 20 },
     iconSize: 30,

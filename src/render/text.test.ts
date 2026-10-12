@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { formatCount, wrapLines } from "./text";
+import { formatCount, isRtl, wrapLines } from "./text";
 
 const measure = (text: string) => text.length * 10;
 
@@ -19,4 +19,10 @@ test("formats counts compactly", () => {
   expect(formatCount(84)).toBe("84");
   expect(formatCount(1234)).toBe("1.2k");
   expect(formatCount(2_500_000)).toBe("2.5m");
+});
+
+test("detects right-to-left text from the first strong character", () => {
+  expect(isRtl("שלום world")).toBe(true);
+  expect(isRtl("2024 مرحبا")).toBe(true);
+  expect(isRtl("hello שלום")).toBe(false);
 });

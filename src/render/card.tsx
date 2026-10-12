@@ -11,7 +11,7 @@ import {
   type MetaStyle,
   type Theme,
 } from "./parts";
-import { wrapLines } from "./text";
+import { isRtl, wrapLines } from "./text";
 
 const GAP = 12;
 const ICON_GAP = 12;
@@ -40,7 +40,7 @@ export function layoutCard(content: CardContent, theme: Theme, width: number): S
         y={y + (headerHeight - m.iconSize) / 2}
         size={m.iconSize}
         radius={m.iconRadius}
-        colors={theme.colors}
+        theme={theme}
       />,
     );
   }
@@ -60,11 +60,12 @@ export function layoutCard(content: CardContent, theme: Theme, width: number): S
     const lineHeight = m.descriptionSize * m.descriptionLineHeight;
     const measure = (text: string) => textWidth(theme, text, m.descriptionSize);
     const lines = wrapLines(content.description, innerWidth, measure, MAX_DESCRIPTION_LINES);
+    const rtl = isRtl(content.description);
     y += GAP;
     rows.push(
-      <text font-size={m.descriptionSize} fill={theme.colors.description}>
+      <text font-size={m.descriptionSize} fill={theme.colors.description} text-anchor={rtl ? "end" : undefined}>
         {lines.map((line, i) => (
-          <tspan x={left} y={y + lineHeight * (i + 0.5)} dominant-baseline="central">
+          <tspan x={rtl ? left + innerWidth : left} y={y + lineHeight * (i + 0.5)} dominant-baseline="central">
             {line}
           </tspan>
         ))}

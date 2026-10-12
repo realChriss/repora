@@ -7,14 +7,16 @@ const hexColor = z
   .transform((value) => (value.startsWith("#") ? value : `#${value}`));
 
 const flag = z
-  .enum(["true", "false", "1", "0"])
+  .enum(["true", "false", "1", "0"], "must be true or false")
   .default("true")
   .transform((value) => value === "true" || value === "1");
 
 /** Relative path to an image in the repo; no `..` segments, absolute paths or URLs. */
+const widthMessage = `must be a whole number from ${WIDTH.min} to ${WIDTH.max}`;
+
 const repoPath = z
   .string()
-  .max(256)
+  .max(256, "must be at most 256 characters")
   .regex(/^[\w\-.]+(\/[\w\-.]+)*$/, "must be a relative path inside the repo")
   .refine((path) => !path.split("/").some((segment) => segment === ".." || segment === "."), {
     message: "must not contain . or .. segments",
@@ -22,16 +24,21 @@ const repoPath = z
   .refine((path) => /\.(png|jpe?g|gif|webp|svg)$/i.test(path), { message: "must be a png, jpg, gif, webp or svg" });
 
 export const cardQuery = z.object({
-  style: z.enum(STYLE_NAMES).default(DEFAULTS.style),
-  layout: z.enum(LAYOUTS).default(DEFAULTS.layout),
+  style: z.enum(STYLE_NAMES, `must be one of ${STYLE_NAMES.join(", ")}`).default(DEFAULTS.style),
+  layout: z.enum(LAYOUTS, "must be card or pill").default(DEFAULTS.layout),
   accent: hexColor.default(DEFAULTS.accent),
   bg: hexColor.optional(),
   fg: hexColor.optional(),
   muted: hexColor.optional(),
-  width: z.coerce.number().int().min(WIDTH.min).max(WIDTH.max).default(DEFAULTS.width),
+  width: z.coerce
+    .number(widthMessage)
+    .int(widthMessage)
+    .min(WIDTH.min, widthMessage)
+    .max(WIDTH.max, widthMessage)
+    .default(DEFAULTS.width),
   icon: repoPath.optional(),
-  title: z.string().max(100).optional(),
-  description: z.string().max(300).optional(),
+  title: z.string().max(100, "must be at most 100 characters").optional(),
+  description: z.string().max(300, "must be at most 300 characters").optional(),
   show_icon: flag,
   show_owner: flag,
   show_description: flag,
@@ -43,6 +50,6 @@ export const cardQuery = z.object({
 export type CardQuery = z.infer<typeof cardQuery>;
 
 export const repoParams = z.object({
-  owner: z.string().regex(/^[\w.-]{1,100}$/, "invalid owner"),
-  repo: z.string().regex(/^[\w.-]{1,100}$/, "invalid repo"),
+  owner: z.string().regex(/^[\w.-]{1,100}$/, "is not a valid GitHub owner"),
+  repo: z.string().regex(/^[\w.-]{1,100}$/, "is not a valid repository name"),
 });

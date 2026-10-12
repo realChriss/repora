@@ -1,6 +1,6 @@
 import { measure, type FontWeight } from "./fonts";
 import { languageColor } from "./languages";
-import type { Colors, Style } from "./styles/types";
+import type { Colors, IdFor, Style } from "./styles/types";
 import { formatCount, truncate } from "./text";
 
 export type Icon = { kind: "image"; href: string } | { kind: "monogram"; letter: string };
@@ -18,6 +18,12 @@ export interface CardContent {
 export interface Theme {
   style: Style;
   colors: Colors;
+  id: IdFor;
+}
+
+/** `filter` attribute for a filter the style's Frame defines, or nothing when the style has none. */
+export function filterUrl(theme: Theme, name: string | undefined) {
+  return name ? { filter: `url(#${theme.id(name)})` } : {};
 }
 
 export function textWidth(theme: Theme, text: string, size: number, weight: FontWeight = 400): number {
@@ -30,14 +36,15 @@ interface IconProps {
   y: number;
   size: number;
   radius: number;
-  colors: Colors;
+  theme: Theme;
 }
 
-export function IconBadge({ icon, x, y, size, radius, colors }: IconProps) {
+export function IconBadge({ icon, x, y, size, radius, theme }: IconProps) {
+  const { colors, id } = theme;
   if (icon.kind === "image") {
     return (
       <>
-        <clipPath id="icon-clip">
+        <clipPath id={id("icon-clip")}>
           <rect x={x} y={y} width={size} height={size} rx={radius} />
         </clipPath>
         <image
@@ -47,21 +54,28 @@ export function IconBadge({ icon, x, y, size, radius, colors }: IconProps) {
           width={size}
           height={size}
           preserveAspectRatio="xMidYMid slice"
-          clip-path="url(#icon-clip)"
+          clip-path={`url(#${id("icon-clip")})`}
         />
       </>
     );
   }
   const stroke = colors.monogramStroke ? 1 : 0;
+  const gradient = colors.monogramGradient;
   return (
     <>
+      {gradient && (
+        <linearGradient id={id("monogram")} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color={gradient[0]} />
+          <stop offset="1" stop-color={gradient[1]} />
+        </linearGradient>
+      )}
       <rect
         x={x + stroke / 2}
         y={y + stroke / 2}
         width={size - stroke}
         height={size - stroke}
         rx={radius}
-        fill={colors.monogramBg}
+        fill={gradient ? `url(#${id("monogram")})` : colors.monogramBg}
         stroke={colors.monogramStroke}
         stroke-width={stroke || undefined}
       />
@@ -112,7 +126,7 @@ export function Title({ content, theme, x, y, size, maxWidth }: TitleProps) {
     return { ...run, text };
   });
   return (
-    <text x={x} y={y} dominant-baseline="central" font-size={size} {...theme.style.titleProps}>
+    <text x={x} y={y} dominant-baseline="central" font-size={size} {...filterUrl(theme, theme.style.titleFilter)}>
       {runs.map((run) => (
         <tspan fill={run.color} font-weight={run.weight}>
           {run.text}
@@ -190,7 +204,7 @@ export function MetaItemView({ item, meta, theme, x, y }: MetaItemProps) {
   let marker = null;
   let color = textColor;
   if (item.kind === "language") {
-    marker = <circle cx={cursor + meta.dotSize / 2} cy={y} r={meta.dotSize / 2} fill={item.dot} {...style.dotProps} />;
+    marker = <circle cx={cursor + meta.dotSize / 2} cy={y} r={meta.dotSize / 2} fill={item.dot} {...filterUrl(theme, style.dotFilter)} />;
     cursor += meta.dotSize + ICON_GAP;
   } else if (item.kind === "stars") {
     const size = starSize(meta.size);

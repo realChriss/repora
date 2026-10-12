@@ -1,7 +1,9 @@
 import { readFileSync } from "node:fs";
 import { create, type Font } from "fontkit";
+import subsetFont from "subset-font";
+import { memo } from "../cache";
 
-export type FontName = "plex" | "fira" | "grotesk" | "system";
+export type FontName = "plex" | "fira" | "grotesk" | "inter";
 export type FontWeight = 400 | 600;
 
 interface FontFiles {
@@ -22,12 +24,11 @@ const FONTS: Record<FontName, FontFiles> = {
   plex: { family: "IBM Plex Sans", stack: "'IBM Plex Sans',sans-serif", files: fontsource("ibm-plex-sans") },
   fira: { family: "Fira Code", stack: "'Fira Code',monospace", files: fontsource("fira-code") },
   grotesk: { family: "Space Grotesk", stack: "'Space Grotesk',sans-serif", files: fontsource("space-grotesk") },
-  // ponytail: system stack is measured with Plex metrics, close to Segoe UI / SF; widths may be off by a few px.
-  system: { family: "", stack: "-apple-system,'Segoe UI',Helvetica,Arial,sans-serif", files: fontsource("ibm-plex-sans") },
+  inter: { family: "Inter", stack: "'Inter',-apple-system,'Segoe UI',sans-serif", files: fontsource("inter") },
 };
 
 interface LoadedFont {
-  base64: string;
+  buffer: Buffer;
   font: Font;
 }
 
@@ -38,33 +39,64 @@ function load(name: FontName, weight: FontWeight): LoadedFont {
   let entry = loaded.get(path);
   if (!entry) {
     const buffer = readFileSync(path);
-    entry = { base64: buffer.toString("base64"), font: create(buffer) as Font };
+    entry = { buffer, font: create(buffer) as Font };
     loaded.set(path, entry);
   }
   return entry;
 }
 
+const ZERO_WIDTH = /[\u200B-\u200F\uFE00-\uFE0F]/u;
+const EMOJI = /[\u2600-\u27BF\u{1F000}-\u{1FAFF}]/u;
+const WIDE = /[\u1100-\u115F\u2E80-\uA4CF\uAC00-\uD7A3\uF900-\uFAFF\uFF00-\uFF60]/u;
+
+/** Width in em of a character the font lacks; the viewer's fallback font draws it, so err wide (emoji fonts differ per OS). */
+function fallbackWidth(char: string): number {
+  if (ZERO_WIDTH.test(char)) return 0;
+  if (EMOJI.test(char)) return 1.35;
+  return WIDE.test(char) ? 1 : 0.55;
+}
+
 export function measure(text: string, name: FontName, weight: FontWeight, size: number): number {
   const { font } = load(name, weight);
-  const scale = size / font.unitsPerEm;
-  return font
-    .layout(text)
-    .glyphs.reduce((width, glyph) => width + (glyph.id === 0 ? font.unitsPerEm : glyph.advanceWidth) * scale, 0);
+  let supported = "";
+  let fallbackEm = 0;
+  for (const char of text) {
+    if (font.hasGlyphForCodePoint(char.codePointAt(0)!)) supported += char;
+    else fallbackEm += fallbackWidth(char);
+  }
+  return (font.layout(supported).advanceWidth / font.unitsPerEm + fallbackEm) * size;
 }
 
 export function fontStack(name: FontName): string {
   return FONTS[name].stack;
 }
 
-/** `@font-face` rules with the font inlined, since SVGs in `<img>` can't load external files. */
-export function fontFaceCss(name: FontName): string {
+const HOUR = 60 * 60_000;
+
+function subsetBase64(name: FontName, weight: FontWeight, chars: string): Promise<string> {
+  return memo(`font:${name}:${weight}:${chars}`, HOUR, async () => {
+    const subset = await subsetFont(load(name, weight).buffer, chars, {
+      targetFormat: "woff2",
+      noHinting: true,
+      noLayoutClosure: true,
+    });
+    return Buffer.from(subset).toString("base64");
+  });
+}
+
+/**
+ * `@font-face` rules with the font inlined, since SVGs in `<img>` can't load external files.
+ * Only the characters in `text` are embedded, which keeps a card at a few KB instead of ~60.
+ */
+export async function fontFaceCss(name: FontName, text: string): Promise<string> {
   const { family } = FONTS[name];
-  if (!family) return "";
-  return ([400, 600] as const)
-    .map(
-      (weight) =>
+  const chars = [...new Set(text)].sort().join("");
+  const rules = await Promise.all(
+    ([400, 600] as const).map(
+      async (weight) =>
         `@font-face{font-family:'${family}';font-weight:${weight};` +
-        `src:url(data:font/woff2;base64,${load(name, weight).base64}) format('woff2')}`,
-    )
-    .join("");
+        `src:url(data:font/woff2;base64,${await subsetBase64(name, weight, chars)}) format('woff2')}`,
+    ),
+  );
+  return rules.join("");
 }

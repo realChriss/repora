@@ -3,7 +3,7 @@ import { layoutCard, type Sized } from "./card";
 import { fontFaceCss, fontStack, measure } from "./fonts";
 import type { CardContent, Theme } from "./parts";
 import { layoutPill } from "./pill";
-import { wrapLines } from "./text";
+import { ELLIPSIS, wrapLines } from "./text";
 import { styles, type StyleName } from "./styles";
 import type { Layout } from "./styles/types";
 
@@ -19,23 +19,33 @@ export interface Appearance {
   muted?: string;
 }
 
-function themeFor({ style: name, accent, bg, fg, muted }: Appearance): Theme {
+function themeFor({ style: name, accent, bg, fg, muted }: Appearance, idPrefix: string): Theme {
   const style = styles[name];
   const colors = { ...style.colors(accent) };
   if (bg) colors.bg = bg;
   if (fg) colors.fg = colors.title = fg;
   if (muted) colors.muted = colors.description = colors.star = muted;
-  return { style, colors };
+  return { style, colors, id: (name) => `${idPrefix}-${name}` };
 }
 
-export function renderSvg(content: CardContent, appearance: Appearance): string {
-  const theme = themeFor(appearance);
+/** Characters every card may draw besides its content: counts, separators and the ellipsis. */
+const COMMON_GLYPHS = `0123456789.kmbt forks/ ${ELLIPSIS}`;
+
+function glyphsOf(content: CardContent): string {
+  const letter = content.icon?.kind === "monogram" ? content.icon.letter : "";
+  return [content.owner, content.name, content.description, content.language, letter, COMMON_GLYPHS].join("");
+}
+
+export async function renderSvg(content: CardContent, appearance: Appearance): Promise<string> {
+  const idPrefix = `c${Bun.hash(JSON.stringify([content, appearance])).toString(36).slice(0, 8)}`;
+  const theme = themeFor(appearance, idPrefix);
   const { style } = theme;
   const { layout, accent } = appearance;
   const sized = layout === "card" ? layoutCard(content, theme, appearance.width) : layoutPill(content, theme);
   const radius = layout === "card" ? style.cardRadius : (style.pillRadius ?? sized.height / 2);
   const frame = (
     <style.Frame
+      id={theme.id}
       layout={layout}
       width={sized.width}
       height={sized.height}
@@ -45,10 +55,8 @@ export function renderSvg(content: CardContent, appearance: Appearance): string 
     />
   );
   const label = content.owner ? `${content.owner}/${content.name}` : content.name;
-  return svgDocument(sized, style.margin ?? 0, fontStack(style.font), fontFaceCss(style.font), label, [
-    frame,
-    sized.node,
-  ]);
+  const css = await fontFaceCss(style.font, glyphsOf(content));
+  return svgDocument(sized, style.margin ?? 0, fontStack(style.font), css, label, [frame, sized.node]);
 }
 
 export function renderError(message: string): string {
@@ -56,7 +64,7 @@ export function renderError(message: string): string {
   const padding = 22;
   const fontSize = 14;
   const lineHeight = fontSize * 1.5;
-  const lines = wrapLines(message, width - padding * 2, (text) => measure(text, "system", 400, fontSize), 3);
+  const lines = wrapLines(message, width - padding * 2, (text) => measure(text, "inter", 400, fontSize), 3);
   const height = Math.ceil(lines.length * lineHeight + padding * 2);
   const node = (
     <>
@@ -70,7 +78,7 @@ export function renderError(message: string): string {
       </text>
     </>
   );
-  return svgDocument({ width, height, node }, 0, fontStack("system"), "", message, [node]);
+  return svgDocument({ width, height, node }, 0, fontStack("inter"), "", message, [node]);
 }
 
 function svgDocument(sized: Sized, margin: number, fontFamily: string, css: string, label: string, children: Child[]) {

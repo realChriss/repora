@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, expect, mock, test } from "bun:test";
 import { clearCache } from "./cache";
 import { app } from "./index";
+import { renderError } from "./render";
 import { STYLE_NAMES } from "./card-options";
 
 const realFetch = globalThis.fetch;
@@ -130,7 +131,32 @@ test("serves the builder page and its assets", async () => {
   expect((await app.request("/assets/fonts/../../package.json")).status).toBe(404);
 });
 
-test("wraps long error messages inside the card", async () => {
-  const body = await (await app.request("/honojs/hono?style=nope")).text();
-  expect(body.match(/<tspan/g)?.length).toBeGreaterThan(1);
+test("wraps long error messages inside the card", () => {
+  expect(renderError("word ".repeat(40)).match(/<tspan/g)?.length).toBeGreaterThan(1);
+});
+
+test("embeds only a subset of the font", async () => {
+  mockGitHub();
+  for (const style of STYLE_NAMES) {
+    const body = await (await app.request(`/honojs/hono?style=${style}`)).text();
+    expect(body).toContain("@font-face");
+    expect(body.length).toBeLessThan(15_000);
+  }
+});
+
+test("scopes svg ids per card so inlined cards do not collide", async () => {
+  mockGitHub();
+  const a = await (await app.request("/honojs/hono?style=glow")).text();
+  const b = await (await app.request("/honojs/hono?style=glow&accent=FF8A5B")).text();
+  const ids = (svg: string) => [...svg.matchAll(/ id="([^"]+)"/g)].map((m) => m[1]!);
+  expect(ids(a).filter((id) => ids(b).includes(id))).toEqual([]);
+  const refs = [...a.matchAll(/url\(#([^)]+)\)/g)].map((m) => m[1]!);
+  expect(refs.length).toBeGreaterThan(0);
+  for (const ref of refs) expect(ids(a)).toContain(ref);
+});
+
+test("right-aligns right-to-left descriptions", async () => {
+  mockGitHub();
+  const body = await (await app.request(`/honojs/hono?description=${encodeURIComponent("שלום עולם")}`)).text();
+  expect(body).toContain('text-anchor="end"');
 });

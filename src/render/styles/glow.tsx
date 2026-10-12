@@ -1,19 +1,25 @@
+import { ensureContrast } from "../color";
 import { outline } from "./shape";
 import type { Style } from "./types";
 
+const BG = "#07090c";
+
 export const glow: Style = {
   font: "fira",
-  colors: (accent) => ({
-    bg: "#07090c",
-    fg: "#e6e9ee",
-    title: accent,
-    muted: "#98a0ab",
-    description: "#98a0ab",
-    star: "#98a0ab",
-    monogramBg: "none",
-    monogramFg: accent,
-    monogramStroke: accent,
-  }),
+  colors: (accent) => {
+    const lit = ensureContrast(accent, BG);
+    return {
+      bg: BG,
+      fg: "#e6e9ee",
+      title: lit,
+      muted: "#98a0ab",
+      description: "#98a0ab",
+      star: "#98a0ab",
+      monogramBg: "none",
+      monogramFg: lit,
+      monogramStroke: lit,
+    };
+  },
   card: {
     padding: { top: 20, x: 22, bottom: 20 },
     iconSize: 28,
@@ -28,18 +34,19 @@ export const glow: Style = {
   },
   pill: { padding: 7, iconSize: 26, fontSize: 12.5 },
   cardRadius: 12,
-  margin: 28,
-  titleProps: { filter: "url(#text-glow)" },
-  dotProps: { filter: "url(#dot-glow)" },
+  margin: 14,
+  titleFilter: "text-glow",
+  dotFilter: "dot-glow",
   Frame: (props) => {
-    const { colors, accent } = props;
+    const { id, colors, accent } = props;
+    const edge = ensureContrast(accent, colors.bg, 3);
     return (
       <>
         <defs>
-          <filter id="halo" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="12" />
+          <filter id={id("halo")} x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="5" />
           </filter>
-          <filter id="text-glow" x="-20%" y="-60%" width="140%" height="220%">
+          <filter id={id("text-glow")} x="-20%" y="-60%" width="140%" height="220%">
             <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur" />
             <feComponentTransfer in="blur" result="soft">
               <feFuncA type="linear" slope="0.6" />
@@ -49,7 +56,7 @@ export const glow: Style = {
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
-          <filter id="dot-glow" x="-100%" y="-100%" width="300%" height="300%">
+          <filter id={id("dot-glow")} x="-100%" y="-100%" width="300%" height="300%">
             <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
@@ -57,8 +64,8 @@ export const glow: Style = {
             </feMerge>
           </filter>
         </defs>
-        <rect {...outline(props)} fill={accent} opacity="0.3" filter="url(#halo)" />
-        <rect {...outline(props, 1)} fill={colors.bg} stroke={accent} stroke-opacity="0.55" stroke-width="1" />
+        <rect {...outline(props)} fill={edge} opacity="0.35" filter={`url(#${id("halo")})`} />
+        <rect {...outline(props, 1)} fill={colors.bg} stroke={edge} stroke-opacity="0.55" stroke-width="1" />
       </>
     );
   },

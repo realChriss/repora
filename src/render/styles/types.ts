@@ -13,13 +13,19 @@ export interface Colors {
   monogramBg: string;
   monogramFg: string;
   monogramStroke?: string;
+  /** Draws the monogram background as a diagonal gradient between these colors. */
+  monogramGradient?: [string, string];
   /** Background of meta chips; meta items render as plain text when unset. */
   chip?: string;
   /** Replaces the language color for the dot, e.g. on accent-filled cards. */
   dot?: string;
 }
 
+/** Makes an SVG id unique to one card, so cards inlined into the same page do not share defs. */
+export type IdFor = (name: string) => string;
+
 export interface FrameProps {
+  id: IdFor;
   layout: Layout;
   width: number;
   height: number;
@@ -61,8 +67,8 @@ export interface Style {
   margin?: number;
   /** Shows the title as a muted "owner / " followed by the repo name. */
   splitOwner?: boolean;
-  /** Extra attributes for the title text and language dot, e.g. a filter defined by the Frame. */
-  titleProps?: Record<string, string>;
-  dotProps?: Record<string, string>;
+  /** Names of filters defined by the Frame, applied to the title text and language dot. */
+  titleFilter?: string;
+  dotFilter?: string;
   Frame: FC<FrameProps>;
 }

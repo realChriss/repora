@@ -1,21 +1,23 @@
+import { readableInk } from "../color";
 import { outline } from "./shape";
 import type { Style } from "./types";
 
-const INK = "#0b0c0e";
-
 export const solid: Style = {
   font: "grotesk",
-  colors: (accent) => ({
-    bg: accent,
-    fg: INK,
-    title: INK,
-    muted: INK,
-    description: INK,
-    star: INK,
-    monogramBg: INK,
-    monogramFg: accent,
-    dot: INK,
-  }),
+  colors: (accent) => {
+    const ink = readableInk(accent);
+    return {
+      bg: accent,
+      fg: ink,
+      title: ink,
+      muted: ink,
+      description: ink,
+      star: ink,
+      monogramBg: ink,
+      monogramFg: accent,
+      dot: ink,
+    };
+  },
   card: {
     padding: { top: 20, x: 22, bottom: 20 },
     iconSize: 30,

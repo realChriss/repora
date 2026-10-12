@@ -4,7 +4,7 @@ import type { Style } from "./types";
 const BAR = 4;
 
 export const bar: Style = {
-  font: "system",
+  font: "inter",
   colors: () => ({
     bg: "#ffffff",
     fg: "#1b1d20",
@@ -32,17 +32,17 @@ export const bar: Style = {
   pillRadius: 8,
   splitOwner: true,
   Frame: (props) => {
-    const { layout, width, height, colors, accent } = props;
+    const { id, layout, width, height, colors, accent } = props;
     const accentBar = layout === "card" ? { width, height: BAR } : { width: BAR, height };
     return (
       <>
         <defs>
-          <clipPath id="shape">
+          <clipPath id={id("shape")}>
             <rect {...outline(props)} />
           </clipPath>
         </defs>
         <rect {...outline(props, 1)} fill={colors.bg} stroke="#e1e1dc" stroke-width="1" />
-        <rect {...accentBar} fill={accent} clip-path="url(#shape)" />
+        <rect {...accentBar} fill={accent} clip-path={`url(#${id("shape")})`} />
       </>
     );
   },

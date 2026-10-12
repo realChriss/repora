@@ -32,7 +32,7 @@ export function layoutPill(content: CardContent, theme: Theme): Sized {
         y={center - p.iconSize / 2}
         size={p.iconSize}
         radius={p.iconSize / 2}
-        colors={theme.colors}
+        theme={theme}
       />,
     );
     x += p.iconSize + GAP;
