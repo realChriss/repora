@@ -1,6 +1,6 @@
 <div align="center">
   <img src="assets/icon.png" width="80" height="80" alt="" />
-  <h1>repora</h1>
+  <h1>Repora</h1>
   <p>SVG cards for GitHub repositories, ready to embed in a README.</p>
   <p>
     <a href="https://repora.am1v.wtf"><strong>Create your card</strong></a> ·
