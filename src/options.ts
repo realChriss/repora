@@ -13,7 +13,7 @@ const flag = z
 
 const widthMessage = `must be a whole number from ${WIDTH.min} to ${WIDTH.max}`;
 
-/** Relative path to an image in the repo; no `..` segments, absolute paths or URLs. */
+// Security boundary: icons may only be fetched from inside the linked repo.
 const repoPath = z
   .string()
   .max(256, "must be at most 256 characters")

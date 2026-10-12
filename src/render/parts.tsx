@@ -16,7 +16,6 @@ export interface CardContent {
   icon?: Icon;
 }
 
-/** A laid-out block of SVG content and the size it occupies. */
 export interface Sized {
   width: number;
   height: number;
@@ -29,7 +28,6 @@ export interface Theme {
   id: IdFor;
 }
 
-/** `filter` attribute for a filter the style's Frame defines, or nothing when the style has none. */
 function filterUrl(theme: Theme, name: string | undefined) {
   return name ? { filter: `url(#${theme.id(name)})` } : {};
 }
@@ -111,7 +109,6 @@ interface TitleProps {
   maxWidth: number;
 }
 
-/** Title as text runs, so styles can render the owner prefix in a muted color. */
 function titleRuns({ owner, name }: CardContent, theme: Theme) {
   const { colors, style } = theme;
   if (!owner) return [{ text: name, color: colors.title, weight: 600 as const }];

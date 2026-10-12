@@ -13,15 +13,12 @@ export interface Colors {
   monogramBg: string;
   monogramFg: string;
   monogramStroke?: string;
-  /** Draws the monogram background as a diagonal gradient between these colors. */
   monogramGradient?: [string, string];
-  /** Background of meta chips; meta items render as plain text when unset. */
   chip?: string;
-  /** Replaces the language color for the dot, e.g. on accent-filled cards. */
   dot?: string;
 }
 
-/** Makes an SVG id unique to one card, so cards inlined into the same page do not share defs. */
+// Per-card ids, so cards inlined into one HTML page do not share defs.
 export type IdFor = (name: string) => string;
 
 export interface FrameProps {
@@ -51,7 +48,6 @@ export interface PillMetrics {
   padding: number;
   iconSize: number;
   fontSize: number;
-  /** Extra left padding, e.g. for an accent bar on the left edge. */
   leftInset?: number;
 }
 
@@ -61,13 +57,9 @@ export interface Style {
   card: CardMetrics;
   pill: PillMetrics;
   cardRadius: number;
-  /** Defaults to fully rounded. */
   pillRadius?: number;
-  /** Space around the card for effects drawn outside it, like glows. */
   margin?: number;
-  /** Shows the title as a muted "owner / " followed by the repo name. */
   splitOwner?: boolean;
-  /** Names of filters defined by the Frame, applied to the title text and language dot. */
   titleFilter?: string;
   dotFilter?: string;
   Frame: FC<FrameProps>;

@@ -24,7 +24,6 @@ interface Card {
   url: string;
 }
 
-/** Accepts `owner/repo` or a GitHub link and returns `owner/repo`. */
 function parseRepo(input: string): string | null {
   const value = input
     .trim()
@@ -46,7 +45,6 @@ function normalizeHex(value: string): string {
   return (value.startsWith("#") ? value : `#${value}`).toUpperCase();
 }
 
-/** Query string with only the options that differ from the server defaults. */
 function cardParams(): URLSearchParams {
   const data = new FormData(form);
   const params = new URLSearchParams();
@@ -145,7 +143,6 @@ function update() {
   history.replaceState(null, "", pageQuery.size ? `?${pageQuery}` : location.pathname);
 }
 
-/** Restores the form from the page URL so a configured builder can be shared or reloaded. */
 function restore(params: URLSearchParams) {
   for (const [key, value] of params) {
     const control = form.elements.namedItem(key);
@@ -180,7 +177,6 @@ function onInput(event: Event) {
 form.addEventListener("input", onInput);
 field("repo").addEventListener("input", onInput);
 
-/** Waits for typing and dragging to settle so the preview isn't re-rendered on every keystroke. */
 function inputDelay(target: HTMLInputElement): number {
   if (target.tagName === "TEXTAREA" || target.type === "text") return 350;
   if (target.type === "range" || target.type === "color") return 150;

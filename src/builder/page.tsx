@@ -75,7 +75,6 @@ function ColorField({ id, label }: { id: "bg" | "fg" | "muted"; label: string })
   );
 }
 
-/** `version` busts the cache of the immutable CSS and JS assets. */
 export function builderPage(version: string) {
   return (
     <html lang="en">

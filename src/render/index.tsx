@@ -28,7 +28,7 @@ function themeFor({ style: name, accent, bg, fg, muted }: Appearance, idPrefix: 
   return { style, colors, id: (name) => `${idPrefix}-${name}` };
 }
 
-/** Characters every card may draw besides its content: counts, separators and the ellipsis. */
+// Every fixed text a card draws must be listed, or the subset font lacks its glyphs.
 const COMMON_GLYPHS = `0123456789.kmbt forks/ ${ELLIPSIS}`;
 
 function glyphsOf(content: CardContent): string {

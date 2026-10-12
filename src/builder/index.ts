@@ -13,13 +13,12 @@ const PAGE_FONTS: Record<string, string> = {
 interface Assets {
   js: string;
   css: string;
-  /** Content hash appended to asset URLs, so they can be cached forever and still update on deploy. */
+  /** Appended as ?v= to asset URLs; required because the assets are served as immutable. */
   version: string;
 }
 
 let assets: Promise<Assets> | undefined;
 
-/** Bundles the typed client script on first use; it shares option constants with the server. */
 function loadAssets(): Promise<Assets> {
   assets ??= (async () => {
     const result = await Bun.build({

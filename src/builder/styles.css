@@ -105,8 +105,6 @@ legend {
   outline-offset: 2px;
 }
 
-/* Layout */
-
 .layout {
   display: grid;
   grid-template-columns: minmax(0, 440px) minmax(0, 1fr);
@@ -160,8 +158,6 @@ legend {
   }
 }
 
-/* Intro */
-
 .wordmark {
   font-family: var(--mono);
   font-size: 14px;
@@ -179,8 +175,6 @@ h1 {
   max-width: 44ch;
   color: var(--muted);
 }
-
-/* Fields */
 
 .field {
   display: grid;
@@ -233,8 +227,6 @@ input[aria-invalid] {
 .error:empty {
   display: none;
 }
-
-/* Style picker */
 
 .style-grid {
   display: grid;
@@ -290,8 +282,6 @@ input[aria-invalid] {
   font-weight: 400;
 }
 
-/* Segmented control */
-
 .segmented-track {
   display: inline-grid;
   grid-auto-flow: column;
@@ -332,8 +322,6 @@ input[aria-invalid] {
   outline-offset: 1px;
 }
 
-/* Layout + width row */
-
 .row {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -358,8 +346,6 @@ input[aria-invalid] {
 .width:disabled {
   opacity: 0.45;
 }
-
-/* Accent */
 
 .accent-row {
   display: grid;
@@ -418,8 +404,6 @@ input[type="color"]::-moz-color-swatch {
   transform: scale(0.95);
 }
 
-/* Visibility toggles */
-
 .flag-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -442,8 +426,6 @@ input[type="color"]::-moz-color-swatch {
   margin: 0;
   accent-color: var(--accent);
 }
-
-/* More options */
 
 .more {
   border-top: 1px solid var(--line);
@@ -479,8 +461,6 @@ input[type="color"]::-moz-color-swatch {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
-
-/* Preview */
 
 .preview {
   display: grid;
@@ -548,8 +528,6 @@ input[type="color"]::-moz-color-swatch {
     opacity: 0.05;
   }
 }
-
-/* Snippet */
 
 .snippet {
   display: grid;

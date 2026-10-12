@@ -64,7 +64,7 @@ async function fetchRepo(owner: string, repo: string): Promise<Repo> {
   };
 }
 
-/** Fetches an image from the repo itself and returns it as a data URI, since SVGs in `<img>` can't load URLs. */
+// Data URI because SVGs rendered via <img> cannot load external URLs.
 export function getRepoIcon(repo: Repo, path: string): Promise<string> {
   const key = `icon:${repo.owner}/${repo.name}/${repo.defaultBranch}/${path}`;
   return memo(key, 60 * MINUTE, () => fetchIcon(repo, path), 10 * MINUTE);

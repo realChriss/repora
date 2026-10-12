@@ -12,7 +12,6 @@ export function truncate(text: string, maxWidth: number, measure: Measure): stri
   return withEllipsis(end);
 }
 
-/** Greedy word wrap. The last allowed line is truncated with an ellipsis when text remains. */
 export function wrapLines(text: string, maxWidth: number, measure: Measure, maxLines: number): string[] {
   const words = text.trim().split(/\s+/).filter(Boolean);
   const lines: string[] = [];
@@ -45,7 +44,6 @@ export function formatCount(count: number): string {
 const RTL_CHAR = /[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFF]/;
 const LTR_CHAR = /[A-Za-z\u00C0-\u024F\u0370-\u03FF\u0400-\u04FF]/;
 
-/** True when the first strongly directional character is right-to-left (Hebrew, Arabic, ...). */
 export function isRtl(text: string): boolean {
   for (const char of text) {
     if (RTL_CHAR.test(char)) return true;

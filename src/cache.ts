@@ -6,10 +6,6 @@ interface Entry<T> {
 const MAX_ENTRIES = 1000;
 const entries = new Map<string, Entry<unknown>>();
 
-/**
- * Caches the promise, so concurrent callers share one in-flight load.
- * Rejections are kept for `errorTtlMs` (default: not cached).
- */
 export function memo<T>(key: string, ttlMs: number, load: () => Promise<T>, errorTtlMs = 0): Promise<T> {
   const hit = entries.get(key) as Entry<T> | undefined;
   if (hit && hit.expiresAt > Date.now()) return hit.value;
