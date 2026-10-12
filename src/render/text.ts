@@ -4,9 +4,12 @@ export const ELLIPSIS = "…";
 
 export function truncate(text: string, maxWidth: number, measure: Measure): string {
   if (measure(text) <= maxWidth) return text;
-  let end = text.length;
-  while (end > 0 && measure(text.slice(0, end).trimEnd() + ELLIPSIS) > maxWidth) end--;
-  return text.slice(0, end).trimEnd() + ELLIPSIS;
+  // Code points, not UTF-16 units, so an emoji is never cut in half.
+  const chars = [...text];
+  const withEllipsis = (end: number) => chars.slice(0, end).join("").trimEnd() + ELLIPSIS;
+  let end = chars.length;
+  while (end > 0 && measure(withEllipsis(end)) > maxWidth) end--;
+  return withEllipsis(end);
 }
 
 /** Greedy word wrap. The last allowed line is truncated with an ellipsis when text remains. */

@@ -1,3 +1,4 @@
+import type { Child } from "hono/jsx";
 import { measure, type FontWeight } from "./fonts";
 import { languageColor } from "./languages";
 import type { Colors, IdFor, Style } from "./styles/types";
@@ -15,6 +16,13 @@ export interface CardContent {
   icon?: Icon;
 }
 
+/** A laid-out block of SVG content and the size it occupies. */
+export interface Sized {
+  width: number;
+  height: number;
+  node: Child;
+}
+
 export interface Theme {
   style: Style;
   colors: Colors;
@@ -22,7 +30,7 @@ export interface Theme {
 }
 
 /** `filter` attribute for a filter the style's Frame defines, or nothing when the style has none. */
-export function filterUrl(theme: Theme, name: string | undefined) {
+function filterUrl(theme: Theme, name: string | undefined) {
   return name ? { filter: `url(#${theme.id(name)})` } : {};
 }
 
@@ -104,7 +112,7 @@ interface TitleProps {
 }
 
 /** Title as text runs, so styles can render the owner prefix in a muted color. */
-export function titleRuns({ owner, name }: CardContent, theme: Theme) {
+function titleRuns({ owner, name }: CardContent, theme: Theme) {
   const { colors, style } = theme;
   if (!owner) return [{ text: name, color: colors.title, weight: 600 as const }];
   if (!style.splitOwner) return [{ text: `${owner}/${name}`, color: colors.title, weight: 600 as const }];
@@ -160,13 +168,14 @@ export interface MetaStyle {
 
 const CHIP_PADDING_X = 10;
 const ICON_GAP = 6;
+const STAR_GAP = 4;
 
 const starSize = (size: number) => size * 0.95;
 
 function contentWidth(item: MetaItem, meta: MetaStyle, theme: Theme): number {
   const text = textWidth(theme, item.text, meta.size, meta.weight);
   if (item.kind === "language") return meta.dotSize + ICON_GAP + text;
-  if (item.kind === "stars") return starSize(meta.size) + 4 + text;
+  if (item.kind === "stars") return starSize(meta.size) + STAR_GAP + text;
   return text;
 }
 
@@ -212,7 +221,7 @@ export function MetaItemView({ item, meta, theme, x, y }: MetaItemProps) {
     marker = (
       <path d={STAR_PATH} fill={color} transform={`translate(${cursor} ${y - size / 2}) scale(${size / 16})`} />
     );
-    cursor += size + 4;
+    cursor += size + STAR_GAP;
   }
 
   return (

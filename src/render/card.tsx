@@ -9,6 +9,7 @@ import {
   Title,
   type CardContent,
   type MetaStyle,
+  type Sized,
   type Theme,
 } from "./parts";
 import { isRtl, wrapLines } from "./text";
@@ -16,12 +17,6 @@ import { isRtl, wrapLines } from "./text";
 const GAP = 12;
 const ICON_GAP = 12;
 const MAX_DESCRIPTION_LINES = 3;
-
-export interface Sized {
-  width: number;
-  height: number;
-  node: Child;
-}
 
 export function layoutCard(content: CardContent, theme: Theme, width: number): Sized {
   const m = theme.style.card;

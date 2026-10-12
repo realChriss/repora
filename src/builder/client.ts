@@ -20,6 +20,7 @@ const TEXT_FIELDS = ["icon", "title", "description"] as const;
 
 interface Card {
   repo: string;
+  params: URLSearchParams;
   url: string;
 }
 
@@ -84,8 +85,8 @@ function buildCard(): Card | null {
   setError("repo", repo || empty ? "" : "Enter it as owner/repo, like honojs/hono.");
   if (!repo) return null;
 
-  const query = cardParams().toString();
-  return { repo, url: `${location.origin}/${repo}${query ? `?${query}` : ""}` };
+  const params = cardParams();
+  return { repo, params, url: `${location.origin}/${repo}${params.size ? `?${params}` : ""}` };
 }
 
 function snippetFor(card: Card, format: Format): string {
@@ -140,7 +141,7 @@ function update() {
   snippet.value = card ? snippetFor(card, selectedFormat()) : "";
   copyButton.disabled = !card;
 
-  const pageQuery = card ? new URLSearchParams([["repo", card.repo], ...cardParams()]) : new URLSearchParams();
+  const pageQuery = card ? new URLSearchParams([["repo", card.repo], ...card.params]) : new URLSearchParams();
   history.replaceState(null, "", pageQuery.size ? `?${pageQuery}` : location.pathname);
 }
 
@@ -154,9 +155,8 @@ function restore(params: URLSearchParams) {
       control.value = HEX_FIELDS.includes(key as (typeof HEX_FIELDS)[number]) ? `#${value}` : value;
     }
   }
-  if (params.has("bg") || params.has("fg") || params.has("muted") || params.has("title") || params.has("description")) {
-    form.querySelector("details")?.setAttribute("open", "");
-  }
+  const hasMoreOptions = ["bg", "fg", "muted", "title", "description"].some((key) => params.has(key));
+  if (hasMoreOptions) form.querySelector("details")?.setAttribute("open", "");
   syncPicker();
 }
 
@@ -213,12 +213,8 @@ copyButton.addEventListener("click", async () => {
     snippet.select();
     copyButton.textContent = "Press Ctrl+C";
   }
-  copyButton.dataset.copied = "";
   clearTimeout(copyTimer);
-  copyTimer = setTimeout(() => {
-    copyButton.textContent = "Copy";
-    delete copyButton.dataset.copied;
-  }, 1600);
+  copyTimer = setTimeout(() => (copyButton.textContent = "Copy"), 1600);
 });
 
 restore(new URLSearchParams(location.search));

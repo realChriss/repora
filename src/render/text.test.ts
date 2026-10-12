@@ -15,6 +15,12 @@ test("truncates a single word longer than the width", () => {
   expect(wrapLines("abcdefghijkl", 50, measure, 3)).toEqual(["abcd…"]);
 });
 
+test("never splits an emoji when truncating", () => {
+  const [line] = wrapLines("ab🚀🚀🚀🚀", 50, measure, 1);
+  expect(line).toBe("ab🚀…");
+  expect(line!.isWellFormed()).toBe(true);
+});
+
 test("formats counts compactly", () => {
   expect(formatCount(84)).toBe("84");
   expect(formatCount(1234)).toBe("1.2k");

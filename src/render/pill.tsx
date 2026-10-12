@@ -1,5 +1,4 @@
 import type { Child } from "hono/jsx";
-import type { Sized } from "./card";
 import {
   IconBadge,
   MetaItemView,
@@ -9,6 +8,7 @@ import {
   titleWidth,
   type CardContent,
   type MetaStyle,
+  type Sized,
   type Theme,
 } from "./parts";
 

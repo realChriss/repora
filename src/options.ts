@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { DEFAULTS, HEX_PATTERN, LAYOUTS, STYLE_NAMES, WIDTH } from "./card-options";
+import { DEFAULTS, FLAGS, HEX_PATTERN, LAYOUTS, STYLE_NAMES, WIDTH, type Flag } from "./card-options";
 
 const hexColor = z
   .string()
@@ -11,9 +11,9 @@ const flag = z
   .default("true")
   .transform((value) => value === "true" || value === "1");
 
-/** Relative path to an image in the repo; no `..` segments, absolute paths or URLs. */
 const widthMessage = `must be a whole number from ${WIDTH.min} to ${WIDTH.max}`;
 
+/** Relative path to an image in the repo; no `..` segments, absolute paths or URLs. */
 const repoPath = z
   .string()
   .max(256, "must be at most 256 characters")
@@ -39,17 +39,14 @@ export const cardQuery = z.object({
   icon: repoPath.optional(),
   title: z.string().max(100, "must be at most 100 characters").optional(),
   description: z.string().max(300, "must be at most 300 characters").optional(),
-  show_icon: flag,
-  show_owner: flag,
-  show_description: flag,
-  show_language: flag,
-  show_stars: flag,
-  show_forks: flag,
+  ...(Object.fromEntries(FLAGS.map((name) => [name, flag])) as Record<Flag, typeof flag>),
 });
 
 export type CardQuery = z.infer<typeof cardQuery>;
 
+const repoSegment = (message: string) => z.string().regex(/^[\w.-]{1,100}$/, message);
+
 export const repoParams = z.object({
-  owner: z.string().regex(/^[\w.-]{1,100}$/, "is not a valid GitHub owner"),
-  repo: z.string().regex(/^[\w.-]{1,100}$/, "is not a valid repository name"),
+  owner: repoSegment("is not a valid GitHub owner"),
+  repo: repoSegment("is not a valid repository name"),
 });

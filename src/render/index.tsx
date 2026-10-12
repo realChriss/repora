@@ -1,7 +1,7 @@
 import type { Child } from "hono/jsx";
-import { layoutCard, type Sized } from "./card";
+import { layoutCard } from "./card";
 import { fontFaceCss, fontStack, measure } from "./fonts";
-import type { CardContent, Theme } from "./parts";
+import type { CardContent, Sized, Theme } from "./parts";
 import { layoutPill } from "./pill";
 import { ELLIPSIS, wrapLines } from "./text";
 import { styles, type StyleName } from "./styles";
