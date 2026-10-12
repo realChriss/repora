@@ -10,7 +10,7 @@ interface FontFiles {
   files: Record<FontWeight, string>;
 }
 
-const fontsourceFile = (pkg: string, weight: FontWeight) =>
+export const fontsourceFile = (pkg: string, weight: FontWeight) =>
   Bun.resolveSync(`@fontsource/${pkg}/files/${pkg}-latin-${weight}-normal.woff2`, import.meta.dir);
 
 const fontsource = (pkg: string) => ({

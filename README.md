@@ -6,7 +6,7 @@ SVG cards for a GitHub repository. You can embed them in a README.
 [![hono](https://your-host/honojs/hono?style=rim)](https://github.com/honojs/hono)
 ```
 
-Open `/` to see every style for any repo: `http://localhost:3000/?repo=honojs/hono`.
+Open `/` for the URL builder: enter a repo, tweak the options with a live preview, and copy the Markdown, URL or HTML. The builder keeps its settings in the page URL, so a configured link can be shared.
 
 ## Run
 

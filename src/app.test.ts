@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, mock, test } from "bun:test";
 import { clearCache } from "./cache";
 import { app } from "./index";
-import { STYLE_NAMES } from "./render/styles";
+import { STYLE_NAMES } from "./card-options";
 
 const realFetch = globalThis.fetch;
 
@@ -111,13 +111,23 @@ test("falls back to the monogram when the icon is too large", async () => {
   expect(body).toContain(">H</text>");
 });
 
-test("gallery lists every style and escapes the repo input", async () => {
-  const page = await (await app.request("/?repo=honojs/hono")).text();
-  expect(page.match(/<img /g)?.length).toBe(12);
+test("serves the builder page and its assets", async () => {
+  const page = await (await app.request("/")).text();
+  expect(page).toContain('<form id="builder"');
+  expect(page.match(/name="style"/g)?.length).toBe(STYLE_NAMES.length);
 
-  const xss = await (await app.request("/?repo=%22%3E%3Cscript%3Ealert(1)%3C/script%3E")).text();
-  expect(xss).not.toContain("<script>");
-  expect(xss).toContain("Enter a repository");
+  const script = await app.request("/assets/builder.js");
+  expect(script.headers.get("content-type")).toContain("javascript");
+  expect(await script.text()).toContain("history.replaceState");
+
+  const css = await app.request("/assets/builder.css");
+  expect(css.headers.get("content-type")).toContain("text/css");
+
+  const font = await app.request("/assets/fonts/plex-sans-400.woff2");
+  expect(font.headers.get("content-type")).toBe("font/woff2");
+  expect((await font.arrayBuffer()).byteLength).toBeGreaterThan(1000);
+
+  expect((await app.request("/assets/fonts/../../package.json")).status).toBe(404);
 });
 
 test("wraps long error messages inside the card", async () => {

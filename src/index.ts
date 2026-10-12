@@ -2,7 +2,7 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono, type Context } from "hono";
 import { etag } from "hono/etag";
 import type { core } from "zod";
-import { gallery } from "./gallery";
+import { builder } from "./builder";
 import { GitHubError } from "./github";
 import { cardQuery, repoParams } from "./options";
 import { renderError } from "./render";
@@ -30,7 +30,7 @@ export const app = new Hono();
 
 app.use(etag());
 
-app.get("/", (c) => c.html(gallery(new URL(c.req.url).origin, c.req.query("repo") ?? "honojs/hono")));
+app.route("/", builder);
 
 app.get(
   "/:owner/:repo",

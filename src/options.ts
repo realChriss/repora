@@ -1,9 +1,9 @@
 import { z } from "zod";
-import { STYLE_NAMES } from "./render/styles";
+import { DEFAULTS, HEX_PATTERN, LAYOUTS, STYLE_NAMES, WIDTH } from "./card-options";
 
 const hexColor = z
   .string()
-  .regex(/^#?([0-9a-f]{3}|[0-9a-f]{6})$/i, "must be a hex color like 4FB3FF")
+  .regex(HEX_PATTERN, "must be a hex color like 4FB3FF")
   .transform((value) => (value.startsWith("#") ? value : `#${value}`));
 
 const flag = z
@@ -22,13 +22,13 @@ const repoPath = z
   .refine((path) => /\.(png|jpe?g|gif|webp|svg)$/i.test(path), { message: "must be a png, jpg, gif, webp or svg" });
 
 export const cardQuery = z.object({
-  style: z.enum(STYLE_NAMES).default("rim"),
-  layout: z.enum(["card", "pill"]).default("card"),
-  accent: hexColor.default("#4FB3FF"),
+  style: z.enum(STYLE_NAMES).default(DEFAULTS.style),
+  layout: z.enum(LAYOUTS).default(DEFAULTS.layout),
+  accent: hexColor.default(DEFAULTS.accent),
   bg: hexColor.optional(),
   fg: hexColor.optional(),
   muted: hexColor.optional(),
-  width: z.coerce.number().int().min(300).max(800).default(460),
+  width: z.coerce.number().int().min(WIDTH.min).max(WIDTH.max).default(DEFAULTS.width),
   icon: repoPath.optional(),
   title: z.string().max(100).optional(),
   description: z.string().max(300).optional(),
