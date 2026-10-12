@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "bun --hot src/index.ts",
     "start": "bun src/index.ts",
-    "typecheck": "bun check"
+    "typecheck": "bun check",
+    "update-languages": "bun scripts/update-languages.ts"
   },
   "dependencies": {
     "@fontsource/fira-code": "^5.3.0",
