@@ -14,6 +14,7 @@ export interface Appearance {
   layout: Layout;
   accent: string;
   width: number;
+  scale: number;
   bg?: string;
   fg?: string;
   muted?: string;
@@ -56,7 +57,7 @@ export async function renderSvg(content: CardContent, appearance: Appearance): P
   );
   const label = content.owner ? `${content.owner}/${content.name}` : content.name;
   const css = await fontFaceCss(style.font, glyphsOf(content));
-  return svgDocument(sized, style.margin ?? 0, fontStack(style.font), css, label, [frame, sized.node]);
+  return svgDocument(sized, style.margin ?? 0, fontStack(style.font), css, label, [frame, sized.node], appearance.scale);
 }
 
 export function renderError(message: string): string {
@@ -81,14 +82,22 @@ export function renderError(message: string): string {
   return svgDocument({ width, height, node }, 0, fontStack("inter"), "", message, [node]);
 }
 
-function svgDocument(sized: Sized, margin: number, fontFamily: string, css: string, label: string, children: Child[]) {
+function svgDocument(
+  sized: Sized,
+  margin: number,
+  fontFamily: string,
+  css: string,
+  label: string,
+  children: Child[],
+  scale = 1,
+) {
   const width = sized.width + margin * 2;
   const height = sized.height + margin * 2;
   const svg = (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width}
-      height={height}
+      width={Math.round(width * scale)}
+      height={Math.round(height * scale)}
       viewBox={`0 0 ${width} ${height}`}
       font-family={fontFamily}
       role="img"

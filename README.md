@@ -43,6 +43,7 @@ More examples:
 | `accent` | hex color, `#` optional | `4FB3FF` |
 | `bg` `fg` `muted` | hex color, overrides the style's palette | – |
 | `width` | 300–800 (card only) | `460` |
+| `scale` | 0.5–3, multiplies the image size without changing the layout | `1` |
 | `icon` | path to a png/jpg/gif/webp/svg **inside the repo**, e.g. `assets/logo.png` | monogram |
 | `show_icon` `show_owner` `show_description` `show_language` `show_stars` `show_forks` | `true` `false` `1` `0` | `true` |
 

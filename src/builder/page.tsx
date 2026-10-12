@@ -1,5 +1,5 @@
 import type { Child } from "hono/jsx";
-import { DEFAULTS, FLAGS, STYLE_NAMES, WIDTH, type Flag, type StyleName } from "../card-options";
+import { DEFAULTS, FLAGS, SCALE, STYLE_NAMES, WIDTH, type Flag, type StyleName } from "../card-options";
 
 const STYLE_HINTS: Record<StyleName, string> = {
   acrylic: "Smoked glass with a sheen",
@@ -131,7 +131,7 @@ export function builderPage(version: string) {
                   { value: "pill", label: "Pill" },
                 ]}
               />
-              <fieldset id="width-group" class="width">
+              <fieldset id="width-group" class="range">
                 <legend>
                   Width <output id="width-value">{DEFAULTS.width}px</output>
                 </legend>
@@ -146,6 +146,21 @@ export function builderPage(version: string) {
                 />
               </fieldset>
             </div>
+
+            <fieldset class="range">
+              <legend>
+                Scale <output id="scale-value">{DEFAULTS.scale}×</output>
+              </legend>
+              <input
+                type="range"
+                name="scale"
+                min={SCALE.min}
+                max={SCALE.max}
+                step="0.05"
+                value={DEFAULTS.scale}
+                aria-label="Image scale"
+              />
+            </fieldset>
 
             <fieldset class="accent">
               <legend>Accent</legend>

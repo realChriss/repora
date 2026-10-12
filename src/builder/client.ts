@@ -10,6 +10,7 @@ const snippet = document.querySelector<HTMLTextAreaElement>("#snippet")!;
 const copyButton = document.querySelector<HTMLButtonElement>("#copy")!;
 const widthGroup = document.querySelector<HTMLFieldSetElement>("#width-group")!;
 const widthValue = document.querySelector<HTMLOutputElement>("#width-value")!;
+const scaleValue = document.querySelector<HTMLOutputElement>("#scale-value")!;
 const accentPicker = document.querySelector<HTMLInputElement>("#accent-picker")!;
 
 const field = <T extends HTMLElement = HTMLInputElement>(name: string) =>
@@ -61,8 +62,10 @@ function cardParams(): URLSearchParams {
     if (key !== "accent" || hex !== DEFAULTS.accent) params.set(key, hex.slice(1));
   }
 
-  const width = data.get("width");
-  if (width && Number(width) !== DEFAULTS.width) params.set("width", String(width));
+  for (const key of ["width", "scale"] as const) {
+    const value = data.get(key);
+    if (value && Number(value) !== DEFAULTS[key]) params.set(key, String(value));
+  }
 
   const icon = String(data.get("icon") ?? "").trim();
   if (icon) params.set("icon", icon);
@@ -125,10 +128,15 @@ function selectedFormat(): Format {
   return (document.querySelector<HTMLInputElement>('input[name="format"]:checked')?.value ?? "markdown") as Format;
 }
 
+function syncOutputs() {
+  widthValue.textContent = `${field("width").value}px`;
+  scaleValue.textContent = `${field("scale").value}×`;
+}
+
 function update() {
   const isPill = field<RadioNodeList & HTMLElement>("layout").value === "pill";
   widthGroup.disabled = isPill;
-  widthValue.textContent = `${field("width").value}px`;
+  syncOutputs();
 
   const card = buildCard();
   showPreview(card);
@@ -147,7 +155,7 @@ function onInput(event: Event) {
   const target = event.target as HTMLInputElement;
   if (target === accentPicker) field("accent").value = accentPicker.value.toUpperCase();
   if (target.name === "accent") syncPicker();
-  if (target.name === "width") widthValue.textContent = `${target.value}px`;
+  if (target.type === "range") syncOutputs();
 
   clearTimeout(updateTimer);
   updateTimer = setTimeout(update, inputDelay(target));

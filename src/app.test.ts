@@ -64,6 +64,15 @@ test("embeds an icon from the linked repo", async () => {
   );
 });
 
+test("scales the image size but not the layout", async () => {
+  mockGitHub();
+  const size = async (query: string) =>
+    (await (await app.request(`/honojs/hono${query}`)).text()).match(/width="(\d+)" height="(\d+)" (viewBox="[^"]+")/)!;
+  const [, width, height, viewBox] = await size("");
+  expect(viewBox).toBe(`viewBox="0 0 ${width} ${height}"`);
+  expect((await size("?scale=2")).slice(1)).toEqual([`${Number(width) * 2}`, `${Number(height) * 2}`, viewBox!]);
+});
+
 test("shows an error card for a missing repo", async () => {
   mockGitHub(404);
   const res = await app.request("/honojs/nope");
@@ -79,7 +88,7 @@ test("skips the API for repos whose page is missing", async () => {
 
 test("rejects invalid options before calling GitHub", async () => {
   const fetchMock = mockGitHub();
-  for (const query of ["accent=red", "icon=../secret.png", "icon=https://evil.example/x.png", "style=nope"]) {
+  for (const query of ["accent=red", "icon=../secret.png", "icon=https://evil.example/x.png", "style=nope", "scale=5"]) {
     const res = await app.request(`/honojs/hono?${query}`);
     expect(res.headers.get("cache-control")).toBe("public, max-age=60");
   }

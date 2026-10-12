@@ -329,21 +329,21 @@ input[aria-invalid] {
   gap: 24px;
 }
 
-.width output {
+.range output {
   margin-left: 6px;
   color: var(--muted);
   font-family: var(--mono);
   font-weight: 400;
 }
 
-.width input {
+.range input {
   width: 100%;
   height: 36px;
   margin: 0;
   accent-color: var(--accent);
 }
 
-.width:disabled {
+.range:disabled {
   opacity: 0.45;
 }
 

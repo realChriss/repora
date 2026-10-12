@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { DEFAULTS, FLAGS, HEX_PATTERN, LAYOUTS, STYLE_NAMES, WIDTH, type Flag } from "./card-options";
+import { DEFAULTS, FLAGS, HEX_PATTERN, LAYOUTS, SCALE, STYLE_NAMES, WIDTH, type Flag } from "./card-options";
 
 const hexColor = z
   .string()
@@ -12,6 +12,7 @@ const flag = z
   .transform((value) => value === "true" || value === "1");
 
 const widthMessage = `must be a whole number from ${WIDTH.min} to ${WIDTH.max}`;
+const scaleMessage = `must be a number from ${SCALE.min} to ${SCALE.max}`;
 
 // Security boundary: icons may only be fetched from inside the linked repo.
 const repoPath = z
@@ -36,6 +37,11 @@ export const cardQuery = z.object({
     .min(WIDTH.min, widthMessage)
     .max(WIDTH.max, widthMessage)
     .default(DEFAULTS.width),
+  scale: z.coerce
+    .number(scaleMessage)
+    .min(SCALE.min, scaleMessage)
+    .max(SCALE.max, scaleMessage)
+    .default(DEFAULTS.scale),
   icon: repoPath.optional(),
   ...(Object.fromEntries(FLAGS.map((name) => [name, flag])) as Record<Flag, typeof flag>),
 });

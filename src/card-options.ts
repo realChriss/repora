@@ -8,12 +8,14 @@ export const FLAGS = ["show_icon", "show_owner", "show_description", "show_langu
 export type Flag = (typeof FLAGS)[number];
 
 export const WIDTH = { min: 300, max: 800 } as const;
+export const SCALE = { min: 0.5, max: 3 } as const;
 
 export const DEFAULTS = {
   style: "rim",
   layout: "card",
   accent: "#4FB3FF",
   width: 460,
+  scale: 1,
 } as const;
 
 export const REPO_PATTERN = /^[\w.-]{1,100}\/[\w.-]{1,100}$/;
