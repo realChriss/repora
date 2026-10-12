@@ -40,7 +40,19 @@ export function getRepo(owner: string, repo: string): Promise<Repo> {
   return memo(key, 10 * MINUTE, () => fetchRepo(owner, repo), MINUTE);
 }
 
+// The repo page is not counted against the API quota, so unknown names cost no API call.
+// Fails open: only a definite 404 stops the API call.
+async function repoPageMissing(owner: string, repo: string): Promise<boolean> {
+  const response = await fetch(`https://github.com/${owner}/${repo}`, {
+    method: "HEAD",
+    redirect: "manual",
+    signal: AbortSignal.timeout(TIMEOUT_MS),
+  }).catch(() => undefined);
+  return response?.status === 404;
+}
+
 async function fetchRepo(owner: string, repo: string): Promise<Repo> {
+  if (await repoPageMissing(owner, repo)) throw new GitHubError("Repository not found");
   const headers: Record<string, string> = {
     Accept: "application/vnd.github+json",
     "User-Agent": "repora",
@@ -73,7 +85,7 @@ async function fetchRepo(owner: string, repo: string): Promise<Repo> {
 // Data URI because SVGs rendered via <img> cannot load external URLs.
 export function getRepoIcon(repo: Repo, path: string): Promise<string> {
   const key = `icon:${repo.owner}/${repo.name}/${repo.defaultBranch}/${path}`;
-  return memo(key, 60 * MINUTE, () => fetchIcon(repo, path), 10 * MINUTE);
+  return memo(key, 10 * MINUTE, () => fetchIcon(repo, path), 10 * MINUTE);
 }
 
 async function fetchIcon(repo: Repo, path: string): Promise<string> {

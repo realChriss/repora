@@ -71,6 +71,12 @@ test("shows an error card for a missing repo", async () => {
   expect(await res.text()).toContain("Repository not found");
 });
 
+test("skips the API for repos whose page is missing", async () => {
+  const fetchMock = mockGitHub(404);
+  expect(await (await app.request("/honojs/nope")).text()).toContain("Repository not found");
+  expect(fetchMock.mock.calls.map(([url]) => String(url))).toEqual(["https://github.com/honojs/nope"]);
+});
+
 test("rejects invalid options before calling GitHub", async () => {
   const fetchMock = mockGitHub();
   for (const query of ["accent=red", "icon=../secret.png", "icon=https://evil.example/x.png", "style=nope"]) {
@@ -136,6 +142,7 @@ test("serves the builder page and its assets", async () => {
   expect((await font.arrayBuffer()).byteLength).toBeGreaterThan(1000);
 
   expect((await app.request("/assets/fonts/../../package.json")).status).toBe(404);
+  expect((await app.request("/assets/fonts/constructor")).status).toBe(404);
 });
 
 test("wraps long error messages inside the card", () => {

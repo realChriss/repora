@@ -2,7 +2,9 @@
 
 SVG cards for a GitHub repository. You can embed them in a README.
 
-**Create your card at [repora.am1v.wtf](https://repora.am1v.wtf).** Enter a repo, adjust the style with a live preview, and copy the Markdown, URL or HTML. The builder keeps its settings in the page URL, so you can share a configured link.
+<a href="https://repora.am1v.wtf"><img src="docs/cards.webp" width="488" alt="repora card for honojs/hono, cycling through the six styles" /></a>
+
+**Create your card at [repora.am1v.wtf](https://repora.am1v.wtf).** Enter a repo, adjust the style with a live preview, and copy the Markdown, URL or HTML.
 
 ```md
 [![hono](https://repora.am1v.wtf/honojs/hono?style=rim)](https://github.com/honojs/hono)

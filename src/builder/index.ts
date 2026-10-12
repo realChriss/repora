@@ -51,8 +51,9 @@ builder.get("/assets/builder.css", async (c) => {
 });
 
 builder.get("/assets/fonts/:file", (c) => {
-  const path = PAGE_FONTS[c.req.param("file")];
-  if (!path) return c.notFound();
+  const file = c.req.param("file");
+  if (!Object.hasOwn(PAGE_FONTS, file)) return c.notFound();
+  const path = PAGE_FONTS[file]!;
   c.header("Content-Type", "font/woff2");
   c.header("Cache-Control", IMMUTABLE);
   return c.body(Bun.file(path).stream());
