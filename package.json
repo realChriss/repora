@@ -1,5 +1,6 @@
 {
   "name": "repora",
+  "version": "0.0.0",
   "module": "src/index.ts",
   "type": "module",
   "private": true,
@@ -7,6 +8,7 @@
     "dev": "bun --hot src/index.ts",
     "start": "bun src/index.ts",
     "typecheck": "bun check",
+    "release": "bun scripts/release.ts",
     "update-languages": "bun scripts/update-languages.ts"
   },
   "dependencies": {
