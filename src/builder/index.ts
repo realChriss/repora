@@ -50,6 +50,12 @@ builder.get("/assets/builder.css", async (c) => {
   return c.body((await loadAssets()).css);
 });
 
+builder.get("/favicon.svg", (c) => {
+  c.header("Content-Type", "image/svg+xml");
+  c.header("Cache-Control", "public, max-age=86400");
+  return c.body(Bun.file(new URL("./favicon.svg", import.meta.url)).stream());
+});
+
 builder.get("/assets/fonts/:file", (c) => {
   const file = c.req.param("file");
   if (!Object.hasOwn(PAGE_FONTS, file)) return c.notFound();

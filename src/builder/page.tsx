@@ -83,6 +83,7 @@ export function builderPage(version: string) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="color-scheme" content="light dark" />
         <title>repora: repo cards for your README</title>
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="preload" href="/assets/fonts/plex-sans-400.woff2" as="font" type="font/woff2" crossorigin="" />
         <link rel="stylesheet" href={`/assets/builder.css?v=${version}`} />
         <script type="module" src={`/assets/builder.js?v=${version}`} />
