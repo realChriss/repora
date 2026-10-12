@@ -11,3 +11,7 @@ export function logRequest(message: string) {
   console.log(line);
   if (file.writable) file.write(`${line}\n`);
 }
+
+export function closeLog() {
+  return new Promise<void>((resolve) => file.end(resolve));
+}

@@ -4,7 +4,7 @@ import { etag } from "hono/etag";
 import type { core } from "zod";
 import { builder } from "./builder";
 import { GitHubError } from "./github";
-import { logRequest } from "./log";
+import { closeLog, logRequest } from "./log";
 import { cardQuery, repoParams } from "./options";
 import { renderError } from "./render";
 import { renderRepoCard } from "./repo-card";
@@ -54,7 +54,13 @@ app.onError((error, c) => {
   return errorSvg(c, "Something went wrong");
 });
 
-export default {
-  port: Number(Bun.env.PORT ?? 3000),
-  fetch: app.fetch,
-};
+if (import.meta.main) {
+  const server = Bun.serve({ port: Number(Bun.env.PORT ?? 3000), fetch: app.fetch });
+  console.log(`Listening on ${server.url}`);
+
+  process.on("SIGTERM", async () => {
+    await server.stop();
+    await closeLog();
+    process.exit(0);
+  });
+}
