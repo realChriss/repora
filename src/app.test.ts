@@ -1,0 +1,126 @@
+import { afterEach, beforeEach, expect, mock, test } from "bun:test";
+import { clearCache } from "./cache";
+import { app } from "./index";
+import { STYLE_NAMES } from "./render/styles";
+
+const realFetch = globalThis.fetch;
+
+function mockGitHub(status = 200) {
+  const fetchMock = mock(async (url: string | URL | Request) => {
+    if (String(url).startsWith("https://raw.githubusercontent.com/")) {
+      return new Response(new Uint8Array([137, 80, 78, 71]), { headers: { "content-type": "image/png" } });
+    }
+    if (status !== 200) return new Response("{}", { status });
+    return Response.json({
+      name: "hono",
+      owner: { login: "honojs" },
+      description: "Web framework <built> on Web Standards",
+      language: "TypeScript",
+      stargazers_count: 21000,
+      forks_count: 600,
+      default_branch: "main",
+    });
+  });
+  globalThis.fetch = fetchMock as unknown as typeof fetch;
+  return fetchMock;
+}
+
+beforeEach(() => clearCache());
+afterEach(() => {
+  globalThis.fetch = realFetch;
+});
+
+test("renders every style and layout", async () => {
+  mockGitHub();
+  for (const style of STYLE_NAMES) {
+    for (const layout of ["card", "pill"]) {
+      const res = await app.request(`/honojs/hono?style=${style}&layout=${layout}`);
+      expect(res.status).toBe(200);
+      expect(res.headers.get("content-type")).toContain("image/svg+xml");
+      expect(res.headers.get("cache-control")).toContain("max-age=1800");
+      const body = await res.text();
+      expect(body).toStartWith("<svg");
+      expect(body).toContain("hono");
+    }
+  }
+});
+
+test("escapes repo text and applies display toggles", async () => {
+  mockGitHub();
+  const body = await (await app.request("/honojs/hono?show_stars=false&show_forks=0")).text();
+  expect(body).toContain("&lt;built&gt;");
+  expect(body).not.toContain("21k");
+  expect(body).not.toContain("forks");
+});
+
+test("embeds an icon from the linked repo", async () => {
+  const fetchMock = mockGitHub();
+  const body = await (await app.request("/honojs/hono?icon=docs/logo.png")).text();
+  expect(body).toContain("data:image/png;base64,");
+  expect(String(fetchMock.mock.calls.at(-1)?.[0])).toBe(
+    "https://raw.githubusercontent.com/honojs/hono/main/docs/logo.png",
+  );
+});
+
+test("shows an error card for a missing repo", async () => {
+  mockGitHub(404);
+  const res = await app.request("/honojs/nope");
+  expect(res.headers.get("cache-control")).toBe("public, max-age=60");
+  expect(await res.text()).toContain("Repository not found");
+});
+
+test("rejects invalid options before calling GitHub", async () => {
+  const fetchMock = mockGitHub();
+  for (const query of ["accent=red", "icon=../secret.png", "icon=https://evil.example/x.png", "style=nope"]) {
+    const res = await app.request(`/honojs/hono?${query}`);
+    expect(res.headers.get("cache-control")).toBe("public, max-age=60");
+  }
+  expect(fetchMock).not.toHaveBeenCalled();
+});
+
+test("reports GitHub rate limiting", async () => {
+  mockGitHub(403);
+  expect(await (await app.request("/honojs/hono")).text()).toContain("GitHub rate limit reached");
+});
+
+test("renders repos without description or language", async () => {
+  globalThis.fetch = (async () =>
+    Response.json({
+      name: "empty",
+      owner: { login: "someone" },
+      description: null,
+      language: null,
+      stargazers_count: 0,
+      forks_count: 0,
+      default_branch: "main",
+    })) as unknown as typeof fetch;
+  const body = await (await app.request("/someone/empty?style=tinted")).text();
+  expect(body).toContain("someone/empty");
+  expect(body).toContain("0 forks");
+});
+
+test("falls back to the monogram when the icon is too large", async () => {
+  mockGitHub();
+  const apiFetch = globalThis.fetch;
+  globalThis.fetch = (async (url: string) =>
+    String(url).startsWith("https://raw.githubusercontent.com/")
+      ? new Response(new Uint8Array(1024 * 1024 + 1))
+      : apiFetch(url)) as unknown as typeof fetch;
+  const body = await (await app.request("/honojs/hono?icon=big.png")).text();
+  expect(body).not.toContain("data:image/png");
+  expect(body).toContain(">H</text>");
+});
+
+test("gallery lists every style and escapes the repo input", async () => {
+  const page = await (await app.request("/?repo=honojs/hono")).text();
+  expect(page.match(/<img /g)?.length).toBe(12);
+
+  const xss = await (await app.request("/?repo=%22%3E%3Cscript%3Ealert(1)%3C/script%3E")).text();
+  expect(xss).not.toContain("<script>");
+  expect(xss).toContain("Enter a repository");
+});
+
+test("wraps long error messages inside the card", async () => {
+  const body = await (await app.request("/honojs/hono?style=nope")).text();
+  expect(body.match(/<tspan/g)?.length).toBeGreaterThan(1);
+});
