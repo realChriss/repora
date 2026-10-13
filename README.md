@@ -3,6 +3,10 @@
   <h1>Repora</h1>
   <p>SVG cards for GitHub repositories, ready to embed in a README.</p>
   <p>
+    <a href="https://github.com/realChriss/repora/actions/workflows/ci.yml"><img src="https://github.com/realChriss/repora/actions/workflows/ci.yml/badge.svg" alt="CI status" /></a>
+    <a href="https://github.com/realChriss/repora/tags"><img src="https://img.shields.io/github/v/tag/realChriss/repora?sort=semver&amp;label=release" alt="Latest release" /></a>
+  </p>
+  <p>
     <a href="https://repora.am1v.wtf"><strong>Create your card</strong></a> ·
     <a href="#usage">Usage</a> ·
     <a href="#options">Options</a> ·
