@@ -312,13 +312,8 @@ test("every example URL in /llms.txt renders a card", async () => {
   }
 });
 
-test("serves the agent guide at / to clients that ask for markdown", async () => {
-  const markdown = await app.request("/", { headers: { Accept: "text/markdown, text/html;q=0.9" } });
-  expect(markdown.headers.get("content-type")).toContain("text/markdown");
-  expect(markdown.headers.get("vary")).toContain("Accept");
-
-  const browser = await app.request("/", { headers: { Accept: "text/html,application/xhtml+xml,*/*;q=0.8" } });
-  expect(browser.headers.get("content-type")).toContain("text/html");
-  expect(await browser.text()).toContain('rel="alternate" type="text/markdown" href="/llms.txt"');
-  expect((await app.request("/")).headers.get("content-type")).toContain("text/html");
+test("points agents at the guide from the builder page", async () => {
+  const page = await (await app.request("/")).text();
+  expect(page).toContain('rel="alternate" type="text/markdown" href="/llms.txt"');
+  expect(page).toContain("/llms.txt</code>");
 });

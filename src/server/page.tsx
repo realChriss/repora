@@ -50,7 +50,7 @@ export function builderPage(version: string, origin: string) {
             <h1>Repo cards for your README</h1>
             <p class="lede">Pick a repository, tune the style, and copy the image link.</p>
             <p class="agent-hint">
-              Using an AI agent? Have it read <a href="/llms.txt">{origin}/llms.txt</a>.
+              AI agents: read <code>{origin}/llms.txt</code> to build a card URL for a repository.
             </p>
           </header>
           <div id="app" class="app" spellcheck={false} />
