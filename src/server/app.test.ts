@@ -17,9 +17,9 @@ function mockGitHub(status = 200, repo: Record<string, unknown> = {}) {
     }
     if (status !== 200) return new Response("{}", { status });
     return Response.json({
-      name: "hono",
-      owner: { login: "honojs" },
-      description: "Web framework <built> on Web Standards",
+      name: "repora",
+      owner: { login: "realChriss" },
+      description: "SVG cards <for> a GitHub repository",
       language: "TypeScript",
       stargazers_count: 21000,
       forks_count: 600,
@@ -40,38 +40,38 @@ test("renders every style and layout", async () => {
   mockGitHub();
   for (const style of STYLE_NAMES) {
     for (const layout of ["card", "pill"]) {
-      const res = await app.request(`/honojs/hono?style=${style}&layout=${layout}`);
+      const res = await app.request(`/realChriss/repora?style=${style}&layout=${layout}`);
       expect(res.status).toBe(200);
       expect(res.headers.get("content-type")).toContain("image/svg+xml");
       expect(res.headers.get("cache-control")).toContain("max-age=1800");
       const body = await res.text();
       expect(body).toStartWith("<svg");
-      expect(body).toContain("hono");
+      expect(body).toContain("repora");
     }
   }
 });
 
 test("escapes repo text and applies display toggles", async () => {
   mockGitHub();
-  const body = await (await app.request("/honojs/hono?show_stars=false&show_forks=0")).text();
-  expect(body).toContain("&lt;built&gt;");
+  const body = await (await app.request("/realChriss/repora?show_stars=false&show_forks=0")).text();
+  expect(body).toContain("&lt;for&gt;");
   expect(body).not.toContain("21k");
   expect(body).not.toContain("forks");
 });
 
 test("embeds an icon from the linked repo", async () => {
   const fetchMock = mockGitHub();
-  const body = await (await app.request("/honojs/hono?icon=docs/logo.png")).text();
+  const body = await (await app.request("/realChriss/repora?icon=docs/logo.png")).text();
   expect(body).toContain("data:image/png;base64,");
   expect(String(fetchMock.mock.calls.at(-1)?.[0])).toBe(
-    "https://raw.githubusercontent.com/honojs/hono/main/docs/logo.png",
+    "https://raw.githubusercontent.com/realChriss/repora/main/docs/logo.png",
   );
 });
 
 test("scales the image size but not the layout", async () => {
   mockGitHub();
   const size = async (query: string) =>
-    (await (await app.request(`/honojs/hono${query}`)).text()).match(/width="(\d+)" height="(\d+)" (viewBox="[^"]+")/)!;
+    (await (await app.request(`/realChriss/repora${query}`)).text()).match(/width="(\d+)" height="(\d+)" (viewBox="[^"]+")/)!;
   const [, width, height, viewBox] = await size("");
   expect(viewBox).toBe(`viewBox="0 0 ${width} ${height}"`);
   expect((await size("?scale=2")).slice(1)).toEqual([`${Number(width) * 2}`, `${Number(height) * 2}`, viewBox!]);
@@ -79,21 +79,21 @@ test("scales the image size but not the layout", async () => {
 
 test("shows an error card for a missing repo", async () => {
   mockGitHub(404);
-  const res = await app.request("/honojs/nope");
+  const res = await app.request("/realChriss/nope");
   expect(res.headers.get("cache-control")).toBe("public, max-age=60");
   expect(await res.text()).toContain("Repository not found");
 });
 
 test("skips the API for repos whose page is missing", async () => {
   const fetchMock = mockGitHub(404);
-  expect(await (await app.request("/honojs/nope")).text()).toContain("Repository not found");
-  expect(fetchMock.mock.calls.map(([url]) => String(url))).toEqual(["https://github.com/honojs/nope"]);
+  expect(await (await app.request("/realChriss/nope")).text()).toContain("Repository not found");
+  expect(fetchMock.mock.calls.map(([url]) => String(url))).toEqual(["https://github.com/realChriss/nope"]);
 });
 
 test("rejects invalid options before calling GitHub", async () => {
   const fetchMock = mockGitHub();
   for (const query of ["accent=red", "icon=../secret.png", "icon=https://evil.example/x.png", "style=nope", "scale=5"]) {
-    const res = await app.request(`/honojs/hono?${query}`);
+    const res = await app.request(`/realChriss/repora?${query}`);
     expect(res.headers.get("cache-control")).toBe("public, max-age=60");
   }
   expect(fetchMock).not.toHaveBeenCalled();
@@ -101,14 +101,14 @@ test("rejects invalid options before calling GitHub", async () => {
 
 test("reports GitHub rate limiting", async () => {
   mockGitHub(403);
-  expect(await (await app.request("/honojs/hono")).text()).toContain("GitHub rate limit reached");
+  expect(await (await app.request("/realChriss/repora")).text()).toContain("GitHub rate limit reached");
 });
 
 test("reports GitHub timeouts", async () => {
   globalThis.fetch = (async () => {
     throw new DOMException("timed out", "TimeoutError");
   }) as unknown as typeof fetch;
-  expect(await (await app.request("/honojs/hono")).text()).toContain("GitHub is not responding");
+  expect(await (await app.request("/realChriss/repora")).text()).toContain("GitHub is not responding");
 });
 
 test("renders repos without description or language", async () => {
@@ -133,15 +133,16 @@ test("falls back to the monogram when a streamed icon exceeds the cap", async ()
     String(url).startsWith("https://raw.githubusercontent.com/")
       ? new Response(new Blob([chunk, chunk]).stream())
       : apiFetch(url)) as unknown as typeof fetch;
-  const body = await (await app.request("/honojs/hono?icon=big.png")).text();
+  const body = await (await app.request("/realChriss/repora?icon=big.png")).text();
   expect(body).not.toContain("data:image/png");
-  expect(body).toContain(">H</text>");
+  expect(body).toContain(">R</text>");
 });
 
 test("serves the builder page and its assets", async () => {
   const page = await (await app.request("/")).text();
   expect(page).toContain('<div id="app"');
   expect(page).toContain("<h1>Repo cards for your README</h1>");
+  expect(page).toContain(`href="https://github.com/realChriss/repora"`);
 
   const script = await app.request("/assets/builder.js");
   expect(script.headers.get("content-type")).toContain("javascript");
@@ -174,7 +175,7 @@ test("wraps long error messages inside the card", () => {
 test("embeds only a subset of the font", async () => {
   mockGitHub();
   for (const style of STYLE_NAMES) {
-    const body = await (await app.request(`/honojs/hono?style=${style}`)).text();
+    const body = await (await app.request(`/realChriss/repora?style=${style}`)).text();
     expect(body).toContain("@font-face");
     expect(body.length).toBeLessThan(15_000);
   }
@@ -182,8 +183,8 @@ test("embeds only a subset of the font", async () => {
 
 test("scopes svg ids per card so inlined cards do not collide", async () => {
   mockGitHub();
-  const a = await (await app.request("/honojs/hono?style=glow")).text();
-  const b = await (await app.request("/honojs/hono?style=glow&accent=FF8A5B")).text();
+  const a = await (await app.request("/realChriss/repora?style=glow")).text();
+  const b = await (await app.request("/realChriss/repora?style=glow&accent=FF8A5B")).text();
   const ids = (svg: string) => [...svg.matchAll(/ id="([^"]+)"/g)].map((m) => m[1]!);
   expect(ids(a).filter((id) => ids(b).includes(id))).toEqual([]);
   const refs = [...a.matchAll(/url\(#([^)]+)\)/g)].map((m) => m[1]!);
@@ -193,7 +194,7 @@ test("scopes svg ids per card so inlined cards do not collide", async () => {
 
 test("right-aligns right-to-left descriptions", async () => {
   mockGitHub(200, { description: "שלום עולם" });
-  const body = await (await app.request("/honojs/hono")).text();
+  const body = await (await app.request("/realChriss/repora")).text();
   expect(body).toContain('text-anchor="end"');
 });
 
@@ -208,9 +209,9 @@ test("the builder's full-font render matches the served card apart from the font
     for (const layout of LAYOUTS) {
       for (const variant of variants) {
         const params = new URLSearchParams(`style=${style}&layout=${layout}&${variant}`);
-        const served = await (await app.request(`/honojs/hono?${params}`)).text();
+        const served = await (await app.request(`/realChriss/repora?${params}`)).text();
         const query = cardQuery.parse(Object.fromEntries(params));
-        const client = await renderRepoCard("honojs", "hono", query, { embed: fullFont });
+        const client = await renderRepoCard("realChriss", "repora", query, { embed: fullFont });
         expect(stripFonts(client)).toBe(stripFonts(served));
       }
     }
@@ -223,21 +224,21 @@ test("only the server checks the repo page and sends its token", async () => {
   const token = Bun.env.GITHUB_TOKEN;
   Bun.env.GITHUB_TOKEN = "secret";
   try {
-    await app.request("/honojs/hono");
+    await app.request("/realChriss/repora");
   } finally {
     if (token === undefined) delete Bun.env.GITHUB_TOKEN;
     else Bun.env.GITHUB_TOKEN = token;
   }
   expect(calls()).toEqual([
-    ["https://github.com/honojs/hono", null],
-    ["https://api.github.com/repos/honojs/hono", "Bearer secret"],
+    ["https://github.com/realChriss/repora", null],
+    ["https://api.github.com/repos/realChriss/repora", "Bearer secret"],
   ]);
 
   clearCache();
   fetchMock.mockClear();
-  await renderRepoCard("honojs", "hono", cardQuery.parse({}), { embed: fullFont });
+  await renderRepoCard("realChriss", "repora", cardQuery.parse({}), { embed: fullFont });
   expect(calls().filter(([url]) => !url!.startsWith("http://localhost/"))).toEqual([
-    ["https://api.github.com/repos/honojs/hono", null],
+    ["https://api.github.com/repos/realChriss/repora", null],
   ]);
 });
 

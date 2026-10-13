@@ -32,7 +32,7 @@ const CUSTOM_COLORS = [
 ] as const;
 
 const PREVIEW_MESSAGES: Partial<Record<PreviewStatus, string>> = {
-  empty: "Enter a repository like honojs/hono to see its card.",
+  empty: "Enter a repository like oven-sh/bun to see its card.",
   error: "The preview could not be loaded. Check your connection and try again.",
 };
 

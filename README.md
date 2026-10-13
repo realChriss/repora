@@ -10,7 +10,7 @@
     <a href="#development">Development</a>
   </p>
   <br />
-  <a href="https://repora.am1v.wtf"><img src="assets/cards.webp" width="488" alt="repora card for honojs/hono, cycling through the six styles" /></a>
+  <a href="https://repora.am1v.wtf"><img src="assets/cards.webp" width="488" alt="repora cards for oven-sh/bun, cycling through styles, layouts and accent colors" /></a>
 </div>
 
 ## Usage
@@ -20,16 +20,16 @@ The easiest way is the builder at [repora.am1v.wtf](https://repora.am1v.wtf): en
 Or write the link yourself. Add the card as an image that links to the repo:
 
 ```md
-[![honojs/hono](https://repora.am1v.wtf/honojs/hono)](https://github.com/honojs/hono)
+[![realChriss/repora](https://repora.am1v.wtf/realChriss/repora)](https://github.com/realChriss/repora)
 ```
 
 More examples:
 
 ```
-/honojs/hono?style=acrylic
-/honojs/hono?style=glow&accent=B48CFF&layout=pill
-/honojs/hono?style=bar&icon=docs/images/hono-title.png&show_forks=false
-/honojs/hono?style=solid&accent=4ADE9B&show_owner=false
+/realChriss/repora?style=acrylic
+/realChriss/repora?style=glow&accent=B48CFF&layout=pill
+/realChriss/repora?style=bar&icon=assets/icon.png&show_forks=false
+/realChriss/repora?style=solid&accent=4ADE9B&show_owner=false
 ```
 
 ## Options

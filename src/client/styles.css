@@ -164,10 +164,37 @@ legend {
   }
 }
 
+.topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .wordmark {
   font-family: var(--mono);
   font-size: 14px;
   color: var(--accent);
+}
+
+.source {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    border-color 0.2s var(--ease),
+    color 0.2s var(--ease);
+}
+
+.source:hover {
+  border-color: var(--line-strong);
+  color: var(--text);
 }
 
 h1 {

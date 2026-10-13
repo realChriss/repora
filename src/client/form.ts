@@ -22,7 +22,7 @@ export interface Form {
 }
 
 export const INITIAL_FORM: Form = {
-  repo: "honojs/hono",
+  repo: "oven-sh/bun",
   style: DEFAULTS.style,
   layout: DEFAULTS.layout,
   width: DEFAULTS.width,
@@ -31,7 +31,7 @@ export const INITIAL_FORM: Form = {
   bg: "",
   fg: "",
   muted: "",
-  icon: "",
+  icon: "docs/icons/bun.svg",
   flags: Object.fromEntries(FLAGS.map((flag) => [flag, true])) as Record<Flag, boolean>,
 };
 
@@ -90,10 +90,11 @@ export function buildCard(form: Form, origin: string): { card?: Card; errors: Er
 
   const repo = parseRepo(form.repo);
   if (!repo) {
-    if (form.repo.trim()) errors.repo = "Enter it as owner/repo, like honojs/hono.";
+    if (form.repo.trim()) errors.repo = "Enter it as owner/repo, like oven-sh/bun.";
     return { errors };
   }
-  const url = `${origin}/${repo.owner}/${repo.repo}${params.size ? `?${params}` : ""}`;
+  const search = params.toString().replaceAll("%2F", "/");
+  const url = `${origin}/${repo.owner}/${repo.repo}${search ? `?${search}` : ""}`;
   return { card: { owner: repo.owner, name: repo.repo, query, url }, errors };
 }
 
