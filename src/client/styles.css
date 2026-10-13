@@ -349,33 +349,122 @@ input[aria-invalid] {
 
 .accent-row {
   display: grid;
-  grid-template-columns: 40px minmax(0, 120px) auto;
+  grid-template-columns: minmax(0, 168px) auto;
   align-items: center;
   gap: 10px;
 }
 
-input[type="color"] {
+.color-input {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 8px;
+}
+
+.swatch {
+  position: relative;
   width: 40px;
   height: 40px;
-  padding: 3px;
+  padding: 0;
   border: 1px solid var(--line-strong);
   border-radius: 8px;
   background: var(--surface);
   cursor: pointer;
+  transition: border-color 0.2s var(--ease);
 }
 
-input[type="color"]::-webkit-color-swatch-wrapper {
-  padding: 0;
-}
-
-input[type="color"]::-webkit-color-swatch {
-  border: 0;
+.swatch::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
   border-radius: 5px;
+  background: var(--swatch, transparent);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.1);
 }
 
-input[type="color"]::-moz-color-swatch {
-  border: 0;
-  border-radius: 5px;
+.swatch:hover {
+  border-color: var(--muted);
+}
+
+.swatch[data-default] {
+  border-style: dashed;
+}
+
+.color-popover {
+  position: absolute;
+  inset: auto;
+  width: 232px;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow:
+    0 16px 40px rgb(0 0 0 / 0.2),
+    var(--shadow);
+}
+
+.color-popover:popover-open {
+  display: grid;
+  gap: 10px;
+}
+
+.color-popover:not([data-placed]) {
+  visibility: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .color-popover[data-placed] {
+    animation: pop-in 0.18s var(--ease);
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+hex-color-picker {
+  width: 100%;
+  height: 196px;
+}
+
+hex-color-picker::part(saturation) {
+  margin-bottom: 12px;
+  border-bottom: 0;
+  border-radius: 8px;
+}
+
+hex-color-picker::part(hue) {
+  flex: 0 0 14px;
+  border-radius: 7px;
+}
+
+hex-color-picker::part(saturation-pointer),
+hex-color-picker::part(hue-pointer) {
+  width: 20px;
+  height: 20px;
+  border-width: 3px;
+}
+
+.reset {
+  height: 32px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--sunken);
+  color: var(--text-2);
+  font: 600 13px var(--font);
+  cursor: pointer;
+  transition:
+    border-color 0.2s var(--ease),
+    color 0.2s var(--ease);
+}
+
+.reset:hover {
+  border-color: var(--line-strong);
+  color: var(--text);
 }
 
 .presets {

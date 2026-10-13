@@ -1,4 +1,5 @@
-import { DEFAULTS, FLAGS } from "../shared/card-options";
+import "vanilla-colorful/hex-color-picker.js";
+import { DEFAULTS, FLAGS, HEX_PATTERN, type StyleName } from "../shared/card-options";
 import { GitHubError } from "../shared/github";
 import { cardQuery, repoParams, type CardQuery } from "../shared/options";
 import { renderError } from "../shared/render";
@@ -17,7 +18,6 @@ const copyButton = document.querySelector<HTMLButtonElement>("#copy")!;
 const widthGroup = document.querySelector<HTMLFieldSetElement>("#width-group")!;
 const widthValue = document.querySelector<HTMLOutputElement>("#width-value")!;
 const scaleValue = document.querySelector<HTMLOutputElement>("#scale-value")!;
-const accentPicker = document.querySelector<HTMLInputElement>("#accent-picker")!;
 
 const field = <T extends HTMLElement = HTMLInputElement>(name: string) =>
   form.elements.namedItem(name) as unknown as T;
@@ -188,7 +188,63 @@ function syncOutputs() {
   scaleValue.textContent = `${field("scale").value}×`;
 }
 
+type HexField = (typeof HEX_FIELDS)[number];
+
+function styleDefaults(): Record<HexField, string> {
+  const accent = field("accent").value.trim();
+  const style = styles[field<RadioNodeList & HTMLElement>("style").value as StyleName];
+  const colors = style.colors(HEX_PATTERN.test(accent) ? normalizeHex(accent) : DEFAULTS.accent);
+  return { accent: DEFAULTS.accent, bg: colors.bg, fg: colors.fg, muted: colors.muted };
+}
+
+function currentColor(key: HexField, defaults = styleDefaults()): string {
+  const raw = field(key).value.trim();
+  return normalizeHex(HEX_PATTERN.test(raw) ? raw : defaults[key]);
+}
+
+function syncColors() {
+  const defaults = styleDefaults();
+  for (const key of HEX_FIELDS) {
+    const swatch = document.getElementById(`${key}-swatch`)!;
+    swatch.style.setProperty("--swatch", currentColor(key, defaults));
+    swatch.toggleAttribute("data-default", !field(key).value.trim());
+    if (key !== "accent") field(key).placeholder = normalizeHex(defaults[key]);
+  }
+}
+
+function placePopover(popover: HTMLElement, anchor: HTMLElement) {
+  const gap = 8;
+  const box = anchor.getBoundingClientRect();
+  const { offsetWidth: width, offsetHeight: height } = popover;
+  const below = box.bottom + gap + height <= innerHeight || box.top - gap - height < 0;
+  popover.style.top = `${scrollY + (below ? box.bottom + gap : box.top - gap - height)}px`;
+  popover.style.left = `${scrollX + Math.max(gap, Math.min(box.left, innerWidth - width - gap))}px`;
+}
+
+for (const key of HEX_FIELDS) {
+  const popover = document.getElementById(`${key}-popover`)!;
+  const picker = popover.querySelector("hex-color-picker")!;
+  popover.addEventListener("toggle", (event) => {
+    if ((event as ToggleEvent).newState !== "open") return popover.removeAttribute("data-placed");
+    picker.color = currentColor(key).toLowerCase();
+    placePopover(popover, document.getElementById(`${key}-swatch`)!);
+    popover.setAttribute("data-placed", "");
+  });
+  picker.addEventListener("color-changed", (event) => {
+    field(key).value = (event as CustomEvent<{ value: string }>).detail.value.toUpperCase();
+    syncColors();
+    clearTimeout(updateTimer);
+    updateTimer = setTimeout(update, 150);
+  });
+  popover.querySelector("[data-reset]")?.addEventListener("click", () => {
+    field(key).value = "";
+    popover.hidePopover();
+    update();
+  });
+}
+
 function update() {
+  syncColors();
   const isPill = field<RadioNodeList & HTMLElement>("layout").value === "pill";
   widthGroup.disabled = isPill;
   syncOutputs();
@@ -199,18 +255,12 @@ function update() {
   copyButton.disabled = !card;
 }
 
-function syncPicker() {
-  const hex = field("accent").value.trim();
-  if (/^#?[0-9a-f]{6}$/i.test(hex)) accentPicker.value = normalizeHex(hex).toLowerCase();
-}
-
 let updateTimer: ReturnType<typeof setTimeout> | undefined;
 
 function onInput(event: Event) {
   const target = event.target as HTMLInputElement;
-  if (target === accentPicker) field("accent").value = accentPicker.value.toUpperCase();
-  if (target.name === "accent") syncPicker();
   if (target.type === "range") syncOutputs();
+  syncColors();
 
   clearTimeout(updateTimer);
   updateTimer = setTimeout(update, inputDelay(target));
@@ -221,7 +271,7 @@ field("repo").addEventListener("input", onInput);
 
 function inputDelay(target: HTMLInputElement): number {
   if (target.tagName === "TEXTAREA" || target.type === "text") return 350;
-  if (target.type === "range" || target.type === "color") return 150;
+  if (target.type === "range") return 150;
   return 0;
 }
 
@@ -229,7 +279,6 @@ form.addEventListener("click", (event) => {
   const preset = (event.target as HTMLElement).closest<HTMLButtonElement>("[data-accent]");
   if (!preset) return;
   field("accent").value = preset.dataset.accent!;
-  syncPicker();
   update();
 });
 

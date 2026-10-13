@@ -67,10 +67,50 @@ function Segmented({ name, legend, options, checked, form }: SegmentedProps) {
   );
 }
 
+interface ColorInputProps {
+  id: "accent" | "bg" | "fg" | "muted";
+  label: string;
+  value?: string;
+  inputLabel?: string;
+}
+
+function ColorInput({ id, label, value, inputLabel }: ColorInputProps) {
+  return (
+    <div class="color-input">
+      <button
+        type="button"
+        class="swatch"
+        id={`${id}-swatch`}
+        popovertarget={`${id}-popover`}
+        aria-label={`Pick ${label.toLowerCase()} color`}
+        style={value && `--swatch:${value}`}
+      />
+      <div id={`${id}-popover`} class="color-popover" popover="auto">
+        <hex-color-picker data-for={id} color={value} />
+        {id !== "accent" && (
+          <button type="button" class="reset" data-reset={id}>
+            Use style default
+          </button>
+        )}
+      </div>
+      <input
+        id={id}
+        name={id}
+        class="mono"
+        value={value}
+        autocomplete="off"
+        spellcheck={false}
+        aria-label={inputLabel}
+        aria-describedby={`${id}-error`}
+      />
+    </div>
+  );
+}
+
 function ColorField({ id, label }: { id: "bg" | "fg" | "muted"; label: string }) {
   return (
     <Field id={id} label={label}>
-      <input id={id} name={id} class="mono" autocomplete="off" spellcheck={false} aria-describedby={`${id}-error`} />
+      <ColorInput id={id} label={label} />
     </Field>
   );
 }
@@ -183,16 +223,7 @@ export function builderPage(version: string, origin: string) {
             <fieldset class="accent">
               <legend>Accent</legend>
               <div class="accent-row">
-                <input type="color" id="accent-picker" value={DEFAULTS.accent.toLowerCase()} aria-label="Pick accent color" />
-                <input
-                  id="accent"
-                  name="accent"
-                  class="mono"
-                  value={DEFAULTS.accent}
-                  spellcheck={false}
-                  aria-label="Accent hex color"
-                  aria-describedby="accent-error"
-                />
+                <ColorInput id="accent" label="Accent" value={DEFAULTS.accent} inputLabel="Accent hex color" />
                 <div class="presets">
                   {ACCENT_PRESETS.map((color) => (
                     <button
