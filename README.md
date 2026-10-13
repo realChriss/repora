@@ -23,20 +23,7 @@ The easiest way is the builder at [repora.am1v.wtf](https://repora.am1v.wtf): en
 
 With an AI agent like Claude Code, just ask it to create a card for your repo using `https://repora.am1v.wtf/llms.txt`.
 
-Or write the link yourself. Add the card as an image that links to the repo:
-
-```md
-[![realChriss/repora](https://repora.am1v.wtf/realChriss/repora)](https://github.com/realChriss/repora)
-```
-
-More examples:
-
-```
-/realChriss/repora?style=acrylic
-/realChriss/repora?style=glow&accent=B48CFF&layout=pill
-/realChriss/repora?style=bar&icon=assets/icon.png&show_forks=false
-/realChriss/repora?style=solid&accent=4ADE9B&show_owner=false
-```
+---
 
 ## Options
 
