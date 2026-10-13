@@ -1,7 +1,7 @@
 import { memo } from "./cache";
 
 const MINUTE = 60_000;
-const MAX_ICON_BYTES = 1024 * 1024;
+export const MAX_ICON_BYTES = 1024 * 1024;
 const TIMEOUT_MS = 10_000;
 
 const ICON_TYPES: Record<string, string> = {

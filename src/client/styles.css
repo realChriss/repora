@@ -209,6 +209,21 @@ h1 {
   color: var(--muted);
 }
 
+.agent-hint {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.agent-hint a {
+  color: var(--text-2);
+  font-family: var(--mono);
+  text-underline-offset: 3px;
+}
+
+.agent-hint a:hover {
+  color: var(--accent);
+}
+
 .field {
   display: grid;
   gap: 8px;

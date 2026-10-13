@@ -1,18 +1,9 @@
 import { useEffect, useRef, useState } from "hono/jsx";
 import { render } from "hono/jsx/dom";
-import { FLAGS, SCALE, STYLE_NAMES, WIDTH, type Flag, type StyleName } from "../shared/card-options";
+import { FLAGS, SCALE, STYLE_HINTS, STYLE_NAMES, WIDTH, type Flag } from "../shared/card-options";
 import { ColorInput, Field, Segmented } from "./components";
 import { buildCard, effectiveColors, INITIAL_FORM, snippetFor, type Form, type Format } from "./form";
 import { usePreview, type PreviewStatus } from "./preview";
-
-const STYLE_HINTS: Record<StyleName, string> = {
-  acrylic: "Smoked glass with a sheen",
-  rim: "Dark glass, lit edge",
-  tinted: "Accent-washed fill",
-  glow: "Dark with a neon edge",
-  bar: "Light with an accent bar",
-  solid: "Full accent color",
-};
 
 const FLAG_LABELS: Record<Flag, string> = {
   show_icon: "Icon",

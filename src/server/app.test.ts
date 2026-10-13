@@ -250,3 +250,34 @@ test("the browser bundle refuses server-only files", async () => {
   );
   expect(built).toBe(false);
 });
+
+test("explains the card URL to AI agents at /llms.txt", async () => {
+  const res = await app.request("/llms.txt");
+  expect(res.headers.get("content-type")).toContain("text/markdown");
+  const doc = await res.text();
+  expect(doc).toStartWith("# Repora");
+  for (const option of Object.keys(cardQuery.shape)) expect(doc).toContain(`\`${option}\``);
+  expect(doc).toContain("http://localhost/owner/repo");
+});
+
+test("every example URL in /llms.txt renders a card", async () => {
+  mockGitHub();
+  const doc = await (await app.request("/llms.txt")).text();
+  const urls = [...doc.matchAll(/http:\/\/localhost(\/[\w.-]+\/[\w.-]+(?:\?[^\s)"]*)?)/g)].map((m) => m[1]!);
+  expect(urls.length).toBeGreaterThan(5);
+  for (const url of urls) {
+    const res = await app.request(url);
+    expect({ url, cache: res.headers.get("cache-control") }).toEqual({ url, cache: expect.stringContaining("max-age=1800") });
+  }
+});
+
+test("serves the agent guide at / to clients that ask for markdown", async () => {
+  const markdown = await app.request("/", { headers: { Accept: "text/markdown, text/html;q=0.9" } });
+  expect(markdown.headers.get("content-type")).toContain("text/markdown");
+  expect(markdown.headers.get("vary")).toContain("Accept");
+
+  const browser = await app.request("/", { headers: { Accept: "text/html,application/xhtml+xml,*/*;q=0.8" } });
+  expect(browser.headers.get("content-type")).toContain("text/html");
+  expect(await browser.text()).toContain('rel="alternate" type="text/markdown" href="/llms.txt"');
+  expect((await app.request("/")).headers.get("content-type")).toContain("text/html");
+});

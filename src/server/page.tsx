@@ -20,6 +20,7 @@ export function builderPage(version: string, origin: string) {
         <meta name="theme-color" content="#f3f4f6" media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content="#0a0d12" media="(prefers-color-scheme: dark)" />
         <link rel="canonical" href={`${origin}/`} />
+        <link rel="alternate" type="text/markdown" href="/llms.txt" title="Instructions for AI agents" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="repora" />
         <meta property="og:title" content={TITLE} />
@@ -48,6 +49,9 @@ export function builderPage(version: string, origin: string) {
             </div>
             <h1>Repo cards for your README</h1>
             <p class="lede">Pick a repository, tune the style, and copy the image link.</p>
+            <p class="agent-hint">
+              Using an AI agent? Have it read <a href="/llms.txt">{origin}/llms.txt</a>.
+            </p>
           </header>
           <div id="app" class="app" spellcheck={false} />
         </main>

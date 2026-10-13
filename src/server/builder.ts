@@ -1,6 +1,8 @@
 import { Hono, type Context } from "hono";
+import { accepts } from "hono/accepts";
 import { FONT_NAMES, FONT_WEIGHTS, fontFile } from "../shared/render/fonts";
 import { fontsourceFile } from "./fonts";
+import { llmsTxt } from "./llms";
 import { builderPage } from "./page";
 
 const IMMUTABLE = "public, max-age=31536000, immutable";
@@ -57,7 +59,20 @@ function publicOrigin(c: Context) {
   return `${c.req.header("x-forwarded-proto") ?? url.protocol.slice(0, -1)}://${url.host}`;
 }
 
-builder.get("/", async (c) => c.html(builderPage((await loadAssets()).version, publicOrigin(c))));
+function markdown(c: Context) {
+  c.header("Content-Type", "text/markdown; charset=utf-8");
+  c.header("Cache-Control", "public, max-age=3600");
+  return c.body(llmsTxt(publicOrigin(c)));
+}
+
+builder.get("/", async (c) => {
+  c.header("Vary", "Accept");
+  const type = accepts(c, { header: "Accept", supports: ["text/html", "text/markdown"], default: "text/html" });
+  if (type === "text/markdown") return markdown(c);
+  return c.html(builderPage((await loadAssets()).version, publicOrigin(c)));
+});
+
+builder.get("/llms.txt", markdown);
 
 builder.get("/assets/builder.js", async (c) => {
   c.header("Content-Type", "text/javascript; charset=utf-8");
