@@ -13,4 +13,4 @@ RUN mkdir logs && chown bun logs
 
 USER bun
 EXPOSE 3000
-CMD ["bun", "src/index.ts"]
+CMD ["bun", "src/server/index.ts"]

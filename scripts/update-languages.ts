@@ -10,5 +10,5 @@ const colors = Object.fromEntries(
     .map(([name, language]) => [name, language.color!.toLowerCase()]),
 );
 
-await Bun.write(new URL("../src/render/languages.json", import.meta.url), `${JSON.stringify(colors, null, 2)}\n`);
+await Bun.write(new URL("../src/shared/render/languages.json", import.meta.url), `${JSON.stringify(colors, null, 2)}\n`);
 console.log(`Wrote ${Object.keys(colors).length} language colors`);

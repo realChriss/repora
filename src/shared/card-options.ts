@@ -18,5 +18,4 @@ export const DEFAULTS = {
   scale: 1,
 } as const;
 
-export const REPO_PATTERN = /^[\w.-]{1,100}\/[\w.-]{1,100}$/;
 export const HEX_PATTERN = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i;

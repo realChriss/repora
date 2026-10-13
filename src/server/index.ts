@@ -3,11 +3,13 @@ import { Hono, type Context } from "hono";
 import { etag } from "hono/etag";
 import type { core } from "zod";
 import { builder } from "./builder";
-import { GitHubError } from "./github";
+import { GitHubError } from "../shared/github";
 import { closeLog, logRequest } from "./log";
-import { cardQuery, repoParams } from "./options";
-import { renderError } from "./render";
-import { renderRepoCard } from "./repo-card";
+import { cardQuery, repoParams } from "../shared/options";
+import { renderError } from "../shared/render";
+import { embedSubset } from "./fonts";
+import { assertRepoPage } from "./repo-page";
+import { renderRepoCard } from "../shared/repo-card";
 
 const CACHE_OK = "public, max-age=1800, s-maxage=1800, stale-while-revalidate=86400";
 const CACHE_ERROR = "public, max-age=60";
@@ -42,7 +44,10 @@ app.get(
   zValidator("query", cardQuery, onInvalid),
   async (c) => {
     const { owner, repo } = c.req.valid("param");
-    const body = await renderRepoCard(owner, repo, c.req.valid("query"));
+    const body = await renderRepoCard(owner, repo, c.req.valid("query"), {
+      embed: embedSubset,
+      github: { token: Bun.env.GITHUB_TOKEN, beforeFetch: assertRepoPage },
+    });
     logRequest(`ok   ${c.req.path}`);
     return svg(c, body);
   },

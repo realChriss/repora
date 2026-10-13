@@ -1,4 +1,10 @@
-import { DEFAULTS, FLAGS, HEX_PATTERN, REPO_PATTERN } from "../card-options";
+import { DEFAULTS, FLAGS } from "../shared/card-options";
+import { GitHubError } from "../shared/github";
+import { cardQuery, repoParams, type CardQuery } from "../shared/options";
+import { renderError } from "../shared/render";
+import { addFont, FONT_WEIGHTS, fontFile, type Embed, type FontName } from "../shared/render/fonts";
+import { styles } from "../shared/render/styles";
+import { renderRepoCard } from "../shared/repo-card";
 
 type Format = "markdown" | "url" | "html";
 
@@ -19,19 +25,19 @@ const field = <T extends HTMLElement = HTMLInputElement>(name: string) =>
 const HEX_FIELDS = ["accent", "bg", "fg", "muted"] as const;
 
 interface Card {
-  repo: string;
+  owner: string;
+  name: string;
+  query: CardQuery;
   url: string;
 }
 
-function parseRepo(input: string): string | null {
-  const value = input
+function parseRepo(input: string) {
+  const [owner, repo] = input
     .trim()
     .replace(/^(https?:\/\/)?(www\.)?github\.com\//i, "")
     .replace(/(\.git)?\/?$/, "")
-    .split("/")
-    .slice(0, 2)
-    .join("/");
-  return REPO_PATTERN.test(value) ? value : null;
+    .split("/");
+  return repoParams.safeParse({ owner, repo }).data;
 }
 
 function setError(name: string, message: string) {
@@ -55,9 +61,7 @@ function cardParams(): URLSearchParams {
 
   for (const key of HEX_FIELDS) {
     const raw = String(data.get(key) ?? "").trim();
-    const valid = !raw || HEX_PATTERN.test(raw);
-    setError(key, valid ? "" : "Use a hex color like 4FB3FF.");
-    if (!raw || !valid) continue;
+    if (!raw) continue;
     const hex = normalizeHex(raw);
     if (key !== "accent" || hex !== DEFAULTS.accent) params.set(key, hex.slice(1));
   }
@@ -76,26 +80,76 @@ function cardParams(): URLSearchParams {
   return params;
 }
 
+const ERROR_FIELDS = [...HEX_FIELDS, "icon"] as const;
+
+function validQuery(params: URLSearchParams): CardQuery {
+  const { error } = cardQuery.safeParse(Object.fromEntries(params));
+  for (const key of ERROR_FIELDS) {
+    const message = error?.issues.find((issue) => issue.path[0] === key)?.message;
+    setError(key, message ? `${message[0]!.toUpperCase()}${message.slice(1)}.` : "");
+    if (message) params.delete(key);
+  }
+  return cardQuery.parse(Object.fromEntries(params));
+}
+
 function buildCard(): Card | null {
   const repo = parseRepo(field("repo").value);
   const empty = !field("repo").value.trim();
   setError("repo", repo || empty ? "" : "Enter it as owner/repo, like honojs/hono.");
+  const params = cardParams();
+  const query = validQuery(params);
   if (!repo) return null;
 
-  const params = cardParams();
-  return { repo, url: `${location.origin}/${repo}${params.size ? `?${params}` : ""}` };
+  const url = `${location.origin}/${repo.owner}/${repo.repo}${params.size ? `?${params}` : ""}`;
+  return { owner: repo.owner, name: repo.repo, query, url };
 }
 
 function snippetFor(card: Card, format: Format): string {
-  const link = `https://github.com/${card.repo}`;
+  const repo = `${card.owner}/${card.name}`;
+  const link = `https://github.com/${repo}`;
   if (format === "url") return card.url;
-  if (format === "html") return `<a href="${link}"><img src="${card.url}" alt="${card.repo}" /></a>`;
-  return `[![${card.repo}](${card.url})](${link})`;
+  if (format === "html") return `<a href="${link}"><img src="${card.url}" alt="${repo}" /></a>`;
+  return `[![${repo}](${card.url})](${link})`;
+}
+
+const fontBytes = new Map<string, Uint8Array>();
+const fontLoads = new Map<FontName, Promise<unknown>>();
+
+function loadFont(name: FontName): Promise<unknown> {
+  let load = fontLoads.get(name);
+  if (!load) {
+    load = Promise.all(
+      FONT_WEIGHTS.map(async (weight) => {
+        const file = fontFile(name, weight);
+        const response = await fetch(`/assets/fonts/${file}`);
+        if (!response.ok) throw new Error(`${file}: ${response.status}`);
+        const bytes = new Uint8Array(await response.arrayBuffer());
+        fontBytes.set(file, bytes);
+        addFont(name, weight, bytes);
+      }),
+    );
+    load.catch(() => fontLoads.delete(name));
+    fontLoads.set(name, load);
+  }
+  return load;
+}
+
+const embedFull: Embed = async (name, weight) => fontBytes.get(fontFile(name, weight))!.toBase64();
+
+async function renderPreview(card: Card): Promise<string> {
+  await Promise.all([loadFont("inter"), loadFont(styles[card.query.style].font)]);
+  try {
+    return await renderRepoCard(card.owner, card.name, card.query, { embed: embedFull });
+  } catch (error) {
+    if (error instanceof GitHubError) return renderError(error.message);
+    throw error;
+  }
 }
 
 let latestUrl = "";
+let previewSrc = "";
 
-function showPreview(card: Card | null) {
+async function showPreview(card: Card | null) {
   if (!card) {
     latestUrl = "";
     preview.dataset.state = "empty";
@@ -107,21 +161,22 @@ function showPreview(card: Card | null) {
   latestUrl = card.url;
   preview.dataset.state = previewImage.hidden ? "loading" : "updating";
 
-  const next = new Image();
-  next.onload = () => {
+  try {
+    const svg = await renderPreview(card);
     if (card.url !== latestUrl) return;
-    previewImage.src = card.url;
-    previewImage.alt = `Card for ${card.repo}`;
+    if (previewSrc) URL.revokeObjectURL(previewSrc);
+    previewSrc = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" }));
+    previewImage.src = previewSrc;
+    previewImage.alt = `Card for ${card.owner}/${card.name}`;
     previewImage.hidden = false;
     preview.dataset.state = "ready";
-  };
-  next.onerror = () => {
+  } catch (error) {
     if (card.url !== latestUrl) return;
+    console.error(error);
     previewImage.hidden = true;
     preview.dataset.state = "error";
     previewMessage.textContent = "The preview could not be loaded. Check your connection and try again.";
-  };
-  next.src = card.url;
+  }
 }
 
 function selectedFormat(): Format {

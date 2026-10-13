@@ -35,29 +35,22 @@ interface RepoResponse {
   default_branch: string;
 }
 
-export function getRepo(owner: string, repo: string): Promise<Repo> {
+export interface GitHubOptions {
+  token?: string;
+  beforeFetch?: (owner: string, repo: string) => Promise<void>;
+}
+
+export function getRepo(owner: string, repo: string, options: GitHubOptions = {}): Promise<Repo> {
   const key = `repo:${owner}/${repo}`.toLowerCase();
-  return memo(key, 10 * MINUTE, () => fetchRepo(owner, repo), MINUTE);
+  return memo(key, 10 * MINUTE, () => fetchRepo(owner, repo, options), MINUTE);
 }
 
-// The repo page is not counted against the API quota, so unknown names cost no API call.
-// Fails open: only a definite 404 stops the API call.
-async function repoPageMissing(owner: string, repo: string): Promise<boolean> {
-  const response = await fetch(`https://github.com/${owner}/${repo}`, {
-    method: "HEAD",
-    redirect: "manual",
-    signal: AbortSignal.timeout(TIMEOUT_MS),
-  }).catch(() => undefined);
-  return response?.status === 404;
-}
-
-async function fetchRepo(owner: string, repo: string): Promise<Repo> {
-  if (await repoPageMissing(owner, repo)) throw new GitHubError("Repository not found");
+async function fetchRepo(owner: string, repo: string, { token, beforeFetch }: GitHubOptions): Promise<Repo> {
+  await beforeFetch?.(owner, repo);
   const headers: Record<string, string> = {
     Accept: "application/vnd.github+json",
     "User-Agent": "repora",
   };
-  const token = Bun.env.GITHUB_TOKEN;
   if (token) headers.Authorization = `Bearer ${token}`;
 
   const response = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
@@ -94,17 +87,23 @@ async function fetchIcon(repo: Repo, path: string): Promise<string> {
   const url = `https://raw.githubusercontent.com/${repo.owner}/${repo.name}/${branch}/${path}`;
   const response = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) });
   if (!response.ok) throw new GitHubError("Icon not found in repository");
-  return `data:${type};base64,${(await readCapped(response, MAX_ICON_BYTES)).toString("base64")}`;
+  return `data:${type};base64,${(await readCapped(response, MAX_ICON_BYTES)).toBase64()}`;
 }
 
 // Counts while streaming: Content-Length can be missing or be the compressed size.
-async function readCapped(response: Response, limit: number): Promise<Buffer> {
-  const chunks: Uint8Array[] = [];
+async function readCapped(response: Response, limit: number): Promise<Uint8Array> {
+  const chunks: Uint8Array<ArrayBuffer>[] = [];
   let size = 0;
-  for await (const chunk of response.body ?? []) {
-    size += chunk.byteLength;
-    if (size > limit) throw new GitHubError("Icon is larger than 1 MB");
-    chunks.push(chunk);
+  const reader = response.body?.getReader();
+  while (reader) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.byteLength;
+    if (size > limit) {
+      await reader.cancel();
+      throw new GitHubError("Icon is larger than 1 MB");
+    }
+    chunks.push(value);
   }
-  return Buffer.concat(chunks);
+  return new Uint8Array(await new Blob(chunks).arrayBuffer());
 }

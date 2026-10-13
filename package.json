@@ -2,12 +2,12 @@
   "name": "repora",
   "version": "0.3.1",
   "license": "Apache-2.0",
-  "module": "src/index.ts",
+  "module": "src/server/index.ts",
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun --hot src/index.ts",
-    "start": "bun src/index.ts",
+    "dev": "bun --hot src/server/index.ts",
+    "start": "bun src/server/index.ts",
     "typecheck": "bun check",
     "release": "bun scripts/release.ts",
     "update-languages": "bun scripts/update-languages.ts"

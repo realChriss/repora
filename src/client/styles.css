@@ -2,19 +2,19 @@
   font-family: "IBM Plex Sans";
   font-weight: 400;
   font-display: swap;
-  src: url(/assets/fonts/plex-sans-400.woff2) format("woff2");
+  src: url(/assets/fonts/plex-400.woff2) format("woff2");
 }
 @font-face {
   font-family: "IBM Plex Sans";
   font-weight: 600;
   font-display: swap;
-  src: url(/assets/fonts/plex-sans-600.woff2) format("woff2");
+  src: url(/assets/fonts/plex-600.woff2) format("woff2");
 }
 @font-face {
   font-family: "Fira Code";
   font-weight: 400;
   font-display: swap;
-  src: url(/assets/fonts/fira-code-400.woff2) format("woff2");
+  src: url(/assets/fonts/fira-400.woff2) format("woff2");
 }
 
 /* Radius rule: panels 12px, controls 8px, color swatches round. */

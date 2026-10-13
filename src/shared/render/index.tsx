@@ -1,7 +1,7 @@
 import type { Child } from "hono/jsx";
 import type { Layout, StyleName } from "../card-options";
 import { layoutCard } from "./card";
-import { fontFaceCss, fontStack, measure } from "./fonts";
+import { fontFaceCss, fontStack, measure, type Embed } from "./fonts";
 import type { CardContent, Sized, Theme } from "./parts";
 import { layoutPill } from "./pill";
 import { ELLIPSIS, wrapLines } from "./text";
@@ -37,8 +37,14 @@ function glyphsOf(content: CardContent): string {
   return [content.owner, content.name, content.description, content.language, letter, COMMON_GLYPHS].join("");
 }
 
-export async function renderSvg(content: CardContent, appearance: Appearance): Promise<string> {
-  const idPrefix = `c${Bun.hash(JSON.stringify([content, appearance])).toString(36).slice(0, 8)}`;
+function hash(text: string): string {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < text.length; i++) h = Math.imul(h ^ text.charCodeAt(i), 0x01000193);
+  return (h >>> 0).toString(36);
+}
+
+export async function renderSvg(content: CardContent, appearance: Appearance, embed: Embed): Promise<string> {
+  const idPrefix = `c${hash(JSON.stringify([content, appearance]))}`;
   const theme = themeFor(appearance, idPrefix);
   const { style } = theme;
   const { layout, accent } = appearance;
@@ -56,7 +62,7 @@ export async function renderSvg(content: CardContent, appearance: Appearance): P
     />
   );
   const label = content.owner ? `${content.owner}/${content.name}` : content.name;
-  const css = await fontFaceCss(style.font, glyphsOf(content));
+  const css = await fontFaceCss(style.font, glyphsOf(content), embed);
   return svgDocument(sized, style.margin ?? 0, fontStack(style.font), css, label, [frame, sized.node], appearance.scale);
 }
 

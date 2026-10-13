@@ -1,13 +1,17 @@
 import { afterEach, beforeEach, expect, mock, test } from "bun:test";
-import { clearCache } from "./cache";
+import { clearCache } from "../shared/cache";
 import { app } from "./index";
-import { renderError } from "./render";
-import { STYLE_NAMES } from "./card-options";
+import { renderError } from "../shared/render";
+import { LAYOUTS, STYLE_NAMES } from "../shared/card-options";
+import { cardQuery } from "../shared/options";
+import { FONT_NAMES, FONT_WEIGHTS, fontFile, type Embed } from "../shared/render/fonts";
+import { renderRepoCard } from "../shared/repo-card";
+import { noServerCode } from "./builder";
 
 const realFetch = globalThis.fetch;
 
 function mockGitHub(status = 200, repo: Record<string, unknown> = {}) {
-  const fetchMock = mock(async (url: string | URL | Request) => {
+  const fetchMock = mock(async (url: string | URL | Request, _init?: RequestInit) => {
     if (String(url).startsWith("https://raw.githubusercontent.com/")) {
       return new Response(new Uint8Array([137, 80, 78, 71]), { headers: { "content-type": "image/png" } });
     }
@@ -141,14 +145,20 @@ test("serves the builder page and its assets", async () => {
 
   const script = await app.request("/assets/builder.js");
   expect(script.headers.get("content-type")).toContain("javascript");
-  expect(await script.text()).toContain("#preview-image");
+  const js = await script.text();
+  expect(js).toContain("#preview-image");
+  expect(js).not.toContain("harfbuzz");
 
   const css = await app.request("/assets/builder.css");
   expect(css.headers.get("content-type")).toContain("text/css");
 
-  const font = await app.request("/assets/fonts/plex-sans-400.woff2");
-  expect(font.headers.get("content-type")).toBe("font/woff2");
-  expect((await font.arrayBuffer()).byteLength).toBeGreaterThan(1000);
+  for (const name of FONT_NAMES) {
+    for (const weight of FONT_WEIGHTS) {
+      const font = await app.request(`/assets/fonts/${fontFile(name, weight)}`);
+      expect(font.headers.get("content-type")).toBe("font/woff2");
+      expect((await font.arrayBuffer()).byteLength).toBeGreaterThan(1000);
+    }
+  }
 
   expect((await app.request("/assets/fonts/../../package.json")).status).toBe(404);
   expect((await app.request("/assets/fonts/constructor")).status).toBe(404);
@@ -182,4 +192,57 @@ test("right-aligns right-to-left descriptions", async () => {
   mockGitHub(200, { description: "שלום עולם" });
   const body = await (await app.request("/honojs/hono")).text();
   expect(body).toContain('text-anchor="end"');
+});
+
+const fullFont: Embed = async (name, weight) =>
+  (await (await app.request(`/assets/fonts/${fontFile(name, weight)}`)).bytes()).toBase64();
+
+test("the builder's full-font render matches the served card apart from the font data", async () => {
+  mockGitHub();
+  const stripFonts = (svg: string) => svg.replace(/base64,[^)]+/g, "");
+  const variants = ["icon=logo.png", "bg=101820&fg=FEE715&muted=9a9a9a&accent=F00&width=620&scale=1.5&show_forks=false"];
+  for (const style of STYLE_NAMES) {
+    for (const layout of LAYOUTS) {
+      for (const variant of variants) {
+        const params = new URLSearchParams(`style=${style}&layout=${layout}&${variant}`);
+        const served = await (await app.request(`/honojs/hono?${params}`)).text();
+        const query = cardQuery.parse(Object.fromEntries(params));
+        const client = await renderRepoCard("honojs", "hono", query, { embed: fullFont });
+        expect(stripFonts(client)).toBe(stripFonts(served));
+      }
+    }
+  }
+});
+
+test("only the server checks the repo page and sends its token", async () => {
+  const fetchMock = mockGitHub();
+  const calls = () => fetchMock.mock.calls.map(([url, init]) => [String(url), new Headers(init?.headers).get("authorization")]);
+  const token = Bun.env.GITHUB_TOKEN;
+  Bun.env.GITHUB_TOKEN = "secret";
+  try {
+    await app.request("/honojs/hono");
+  } finally {
+    if (token === undefined) delete Bun.env.GITHUB_TOKEN;
+    else Bun.env.GITHUB_TOKEN = token;
+  }
+  expect(calls()).toEqual([
+    ["https://github.com/honojs/hono", null],
+    ["https://api.github.com/repos/honojs/hono", "Bearer secret"],
+  ]);
+
+  clearCache();
+  fetchMock.mockClear();
+  await renderRepoCard("honojs", "hono", cardQuery.parse({}), { embed: fullFont });
+  expect(calls().filter(([url]) => !url!.startsWith("http://localhost/"))).toEqual([
+    ["https://api.github.com/repos/honojs/hono", null],
+  ]);
+});
+
+test("the browser bundle refuses server-only files", async () => {
+  const entry = Bun.fileURLToPath(new URL("./log.ts", import.meta.url));
+  const built = await Bun.build({ entrypoints: [entry], target: "browser", plugins: [noServerCode] }).then(
+    (result) => result.success,
+    () => false,
+  );
+  expect(built).toBe(false);
 });

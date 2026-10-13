@@ -1,5 +1,5 @@
 import type { Child } from "hono/jsx";
-import { DEFAULTS, FLAGS, SCALE, STYLE_NAMES, WIDTH, type Flag, type StyleName } from "../card-options";
+import { DEFAULTS, FLAGS, SCALE, STYLE_NAMES, WIDTH, type Flag, type StyleName } from "../shared/card-options";
 
 const STYLE_HINTS: Record<StyleName, string> = {
   acrylic: "Smoked glass with a sheen",
@@ -102,7 +102,7 @@ export function builderPage(version: string, origin: string) {
         <meta name="twitter:card" content="summary" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/icon.png" />
-        <link rel="preload" href="/assets/fonts/plex-sans-400.woff2" as="font" type="font/woff2" crossorigin="" />
+        <link rel="preload" href="/assets/fonts/plex-400.woff2" as="font" type="font/woff2" crossorigin="" />
         <link rel="stylesheet" href={`/assets/builder.css?v=${version}`} />
         <script type="module" src={`/assets/builder.js?v=${version}`} />
       </head>

@@ -1,12 +1,18 @@
-import { getRepo, getRepoIcon, type Repo } from "./github";
+import { getRepo, getRepoIcon, type GitHubOptions, type Repo } from "./github";
 import type { CardQuery } from "./options";
 import { renderSvg, type CardContent } from "./render";
+import type { Embed } from "./render/fonts";
 import type { Icon } from "./render/parts";
 
-export async function renderRepoCard(owner: string, name: string, query: CardQuery): Promise<string> {
-  const repo = await getRepo(owner, name);
+export interface RenderEnv {
+  embed: Embed;
+  github?: GitHubOptions;
+}
+
+export async function renderRepoCard(owner: string, name: string, query: CardQuery, env: RenderEnv): Promise<string> {
+  const repo = await getRepo(owner, name, env.github);
   const icon = query.show_icon ? await resolveIcon(repo, query.icon) : undefined;
-  return renderSvg(toContent(repo, query, icon), query);
+  return renderSvg(toContent(repo, query, icon), query, env.embed);
 }
 
 async function resolveIcon(repo: Repo, path: string | undefined): Promise<Icon> {
