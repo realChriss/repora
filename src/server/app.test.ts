@@ -1,6 +1,6 @@
-import { afterEach, beforeEach, expect, mock, test } from "bun:test";
+import { afterEach, beforeEach, expect, mock, setSystemTime, spyOn, test } from "bun:test";
 import { clearCache } from "../shared/cache";
-import { app } from "./index";
+import { app, missStore } from "./index";
 import { renderError } from "../shared/render";
 import { LAYOUTS, STYLE_NAMES } from "../shared/card-options";
 import { cardQuery } from "../shared/options";
@@ -31,7 +31,10 @@ function mockGitHub(status = 200, repo: Record<string, unknown> = {}) {
   return fetchMock;
 }
 
-beforeEach(() => clearCache());
+beforeEach(() => {
+  clearCache();
+  missStore.resetAll();
+});
 afterEach(() => {
   globalThis.fetch = realFetch;
 });
@@ -84,6 +87,17 @@ test("shows an error card for a missing repo", async () => {
   expect(await res.text()).toContain("Repository not found");
 });
 
+test("locks down cards opened as documents and logs paths undecoded", async () => {
+  mockGitHub();
+  const log = spyOn(console, "log").mockImplementation(() => {});
+  const res = await app.request("/real%0AChriss/repora");
+  const logged = log.mock.calls.flat().join("");
+  log.mockRestore();
+  expect(res.headers.get("content-security-policy")).toStartWith("default-src 'none'");
+  expect(res.headers.get("x-content-type-options")).toBe("nosniff");
+  expect(logged).toContain("/real%0AChriss/repora");
+});
+
 test("skips the API for repos whose page is missing", async () => {
   const fetchMock = mockGitHub(404);
   expect(await (await app.request("/realChriss/nope")).text()).toContain("Repository not found");
@@ -102,6 +116,33 @@ test("rejects invalid options before calling GitHub", async () => {
 test("reports GitHub rate limiting", async () => {
   mockGitHub(403);
   expect(await (await app.request("/realChriss/repora")).text()).toContain("GitHub rate limit reached");
+});
+
+test("limits cache misses per client but never cached cards", async () => {
+  mockGitHub();
+  const card = async (path: string, ip = "1.1.1.1") =>
+    (await app.request(path, { headers: { "cf-connecting-ip": ip } })).text();
+  for (let i = 0; i < 20; i++) expect(await card(`/realChriss/repo${i}`)).not.toContain("Too many requests");
+  expect(await card("/realChriss/repo20")).toContain("Too many requests");
+  expect(await card("/realChriss/repo0")).not.toContain("Too many requests");
+  expect(await card("/realChriss/repo20", "2.2.2.2")).not.toContain("Too many requests");
+});
+
+test("keeps serving the last good card while GitHub fails, but not for deleted repos", async () => {
+  const warn = spyOn(console, "warn").mockImplementation(() => {});
+  const expire = () => setSystemTime(new Date(Date.now() + 11 * 60_000));
+  mockGitHub();
+  await app.request("/realChriss/repora");
+  expire();
+  mockGitHub(403);
+  const stale = await (await app.request("/realChriss/repora")).text();
+  expire();
+  mockGitHub(404);
+  const deleted = await (await app.request("/realChriss/repora")).text();
+  setSystemTime();
+  warn.mockRestore();
+  expect(stale).toContain("21k");
+  expect(deleted).toContain("Repository not found");
 });
 
 test("reports GitHub timeouts", async () => {

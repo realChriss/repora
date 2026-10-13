@@ -1,4 +1,4 @@
-import { GitHubError } from "../shared/github";
+import { RepoNotFoundError } from "../shared/github";
 
 const TIMEOUT_MS = 10_000;
 
@@ -10,5 +10,5 @@ export async function assertRepoPage(owner: string, repo: string): Promise<void>
     redirect: "manual",
     signal: AbortSignal.timeout(TIMEOUT_MS),
   }).catch(() => undefined);
-  if (response?.status === 404) throw new GitHubError("Repository not found");
+  if (response?.status === 404) throw new RepoNotFoundError();
 }

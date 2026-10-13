@@ -15,6 +15,12 @@ const ICON_TYPES: Record<string, string> = {
 
 export class GitHubError extends Error {}
 
+export class RepoNotFoundError extends GitHubError {
+  constructor() {
+    super("Repository not found");
+  }
+}
+
 export interface Repo {
   owner: string;
   name: string;
@@ -40,9 +46,22 @@ export interface GitHubOptions {
   beforeFetch?: (owner: string, repo: string) => Promise<void>;
 }
 
+export const repoKey = (owner: string, repo: string) => `repo:${owner}/${repo}`.toLowerCase();
+
+// A deleted repo must not be served stale.
 export function getRepo(owner: string, repo: string, options: GitHubOptions = {}): Promise<Repo> {
-  const key = `repo:${owner}/${repo}`.toLowerCase();
-  return memo(key, 10 * MINUTE, () => fetchRepo(owner, repo, options), MINUTE);
+  const key = repoKey(owner, repo);
+  return memo(
+    key,
+    10 * MINUTE,
+    (stale) =>
+      fetchRepo(owner, repo, options).catch((error) => {
+        if (!stale || error instanceof RepoNotFoundError) throw error;
+        console.warn(`serving stale ${key}: ${error.message}`);
+        return stale;
+      }),
+    MINUTE,
+  );
 }
 
 async function fetchRepo(owner: string, repo: string, { token, beforeFetch }: GitHubOptions): Promise<Repo> {
@@ -59,7 +78,7 @@ async function fetchRepo(owner: string, repo: string, { token, beforeFetch }: Gi
   }).catch(() => {
     throw new GitHubError("GitHub is not responding");
   });
-  if (response.status === 404) throw new GitHubError("Repository not found");
+  if (response.status === 404) throw new RepoNotFoundError();
   if (response.status === 403 || response.status === 429) throw new GitHubError("GitHub rate limit reached");
   if (!response.ok) throw new GitHubError(`GitHub responded with ${response.status}`);
 
