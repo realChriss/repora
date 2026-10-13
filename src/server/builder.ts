@@ -14,7 +14,7 @@ const FONT_FILES = Object.fromEntries(
 interface Assets {
   js: string;
   css: string;
-  /** Appended as ?v= to asset URLs; required because the assets are served as immutable. */
+  // Cache-busts the immutable asset URLs.
   version: string;
 }
 

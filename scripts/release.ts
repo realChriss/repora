@@ -1,4 +1,3 @@
-// Pushing a v* tag is the only thing that publishes an image, so this script is the whole release procedure.
 import { $ } from "bun";
 
 const CONFIG = "package.json";
