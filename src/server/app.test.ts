@@ -140,17 +140,20 @@ test("falls back to the monogram when a streamed icon exceeds the cap", async ()
 
 test("serves the builder page and its assets", async () => {
   const page = await (await app.request("/")).text();
-  expect(page).toContain('<form id="builder"');
-  expect(page.match(/name="style"/g)?.length).toBe(STYLE_NAMES.length);
+  expect(page).toContain('<div id="app"');
+  expect(page).toContain("<h1>Repo cards for your README</h1>");
 
   const script = await app.request("/assets/builder.js");
   expect(script.headers.get("content-type")).toContain("javascript");
   const js = await script.text();
-  expect(js).toContain("#preview-image");
-  expect(js).not.toContain("harfbuzz");
+  expect(js.includes("preview-image")).toBe(true);
+  expect(js.includes("harfbuzz")).toBe(false);
 
   const css = await app.request("/assets/builder.css");
   expect(css.headers.get("content-type")).toContain("text/css");
+  const stylesheet = await css.text();
+  expect(stylesheet).not.toContain("\n  ");
+  expect(stylesheet).toContain("url(/assets/fonts/plex-400.woff2)");
 
   for (const name of FONT_NAMES) {
     for (const weight of FONT_WEIGHTS) {

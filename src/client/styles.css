@@ -110,6 +110,7 @@ legend {
   grid-template-columns: minmax(0, 440px) minmax(0, 1fr);
   grid-template-areas:
     "intro output"
+    "repo output"
     "controls output";
   align-items: start;
   gap: 28px 56px;
@@ -125,8 +126,12 @@ legend {
   gap: 10px;
 }
 
-.intro .field {
-  margin-top: 18px;
+.app {
+  display: contents;
+}
+
+.repo {
+  grid-area: repo;
 }
 
 .controls {
@@ -148,6 +153,7 @@ legend {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
       "intro"
+      "repo"
       "output"
       "controls";
     padding: 28px 16px 48px;
@@ -577,10 +583,6 @@ hex-color-picker::part(hue-pointer) {
   max-width: 100%;
   height: auto;
   transition: opacity 0.25s var(--ease);
-}
-
-.preview img[hidden] {
-  display: none;
 }
 
 .preview[data-state="updating"] img {

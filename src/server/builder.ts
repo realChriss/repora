@@ -32,14 +32,18 @@ let assets: Promise<Assets> | undefined;
 function loadAssets(): Promise<Assets> {
   assets ??= (async () => {
     const result = await Bun.build({
-      entrypoints: [Bun.fileURLToPath(new URL("../client/builder.ts", import.meta.url))],
+      entrypoints: ["../client/main.tsx", "../client/styles.css"].map((path) =>
+        Bun.fileURLToPath(new URL(path, import.meta.url)),
+      ),
       target: "browser",
       minify: true,
+      external: ["/assets/*"],
       plugins: [noServerCode],
     });
-    if (!result.success || !result.outputs[0]) throw new AggregateError(result.logs, "Builder script failed to bundle");
-    const js = await result.outputs[0].text();
-    const css = await Bun.file(new URL("../client/styles.css", import.meta.url)).text();
+    const output = (extension: string) => result.outputs.find((file) => file.path.endsWith(extension));
+    const [jsFile, cssFile] = [output(".js"), output(".css")];
+    if (!result.success || !jsFile || !cssFile) throw new AggregateError(result.logs, "Builder assets failed to bundle");
+    const [js, css] = await Promise.all([jsFile.text(), cssFile.text()]);
     return { js, css, version: Bun.hash(js + css).toString(36) };
   })();
   return assets;
