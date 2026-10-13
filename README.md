@@ -21,7 +21,7 @@
 
 The easiest way is the builder at [repora.am1v.wtf](https://repora.am1v.wtf): enter a repo, adjust the style with a live preview, and copy the Markdown, URL or HTML.
 
-With an AI agent like Claude Code, just ask it to create a card for your repo using `https://repora.am1v.wtf/llms.txt`, which explains everything it needs.
+With an AI agent like Claude Code, just ask it to create a card for your repo using `https://repora.am1v.wtf/llms.txt`.
 
 Or write the link yourself. Add the card as an image that links to the repo:
 
