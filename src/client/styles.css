@@ -171,6 +171,9 @@ legend {
 }
 
 .wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-family: var(--mono);
   font-size: 14px;
   color: var(--accent);

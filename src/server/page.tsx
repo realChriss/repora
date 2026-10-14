@@ -39,7 +39,10 @@ export function builderPage(version: string, origin: string) {
         <main class="layout">
           <header class="intro">
             <div class="topline">
-              <p class="wordmark">repora</p>
+              <p class="wordmark">
+                <img src="/favicon.svg" width="20" height="20" alt="" />
+                repora
+              </p>
               <a class="source" href={SOURCE}>
                 <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
                   <path d={GITHUB_MARK} fill="currentColor" />
