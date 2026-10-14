@@ -49,12 +49,12 @@ export function builderPage(version: string, origin: string) {
             </div>
             <h1>Repo cards for your README</h1>
             <p class="lede">Pick a repository, tune the style, and copy the image link.</p>
-            <p class="agent-hint">
-              AI agents: read <code>{origin}/llms.txt</code> to build a card URL for a repository.
-            </p>
           </header>
           <div id="app" class="app" spellcheck={false} />
         </main>
+        <footer class="footer">
+          AI agents: read <a href="/llms.txt">llms.txt</a> to build card URLs.
+        </footer>
         <noscript>
           <p class="noscript">The builder needs JavaScript. Cards work without it: use /owner/repo?style=rim as an image URL.</p>
         </noscript>

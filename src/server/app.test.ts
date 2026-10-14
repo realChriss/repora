@@ -315,5 +315,5 @@ test("every example URL in /llms.txt renders a card", async () => {
 test("points agents at the guide from the builder page", async () => {
   const page = await (await app.request("/")).text();
   expect(page).toContain('rel="alternate" type="text/markdown" href="/llms.txt"');
-  expect(page).toContain("/llms.txt</code>");
+  expect(page).toContain('<a href="/llms.txt">llms.txt</a>');
 });
