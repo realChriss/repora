@@ -1,4 +1,4 @@
-export const STYLE_NAMES = ["acrylic", "rim", "glow", "bar", "solid"] as const;
+export const STYLE_NAMES = ["acrylic", "rim", "glow", "bar", "solid", "brutal"] as const;
 export type StyleName = (typeof STYLE_NAMES)[number];
 
 export const STYLE_HINTS: Record<StyleName, string> = {
@@ -7,6 +7,7 @@ export const STYLE_HINTS: Record<StyleName, string> = {
   glow: "Dark with a neon edge",
   bar: "Light with an accent bar",
   solid: "Full accent color",
+  brutal: "Pastel with a bold border and shadow",
 };
 
 export const LAYOUTS = ["card", "pill"] as const;

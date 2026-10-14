@@ -31,7 +31,7 @@ With an AI agent like Claude Code, just ask it to create a card for your repo us
 
 | Option | Values | Default |
 |---|---|---|
-| `style` | `acrylic` `rim` `glow` `bar` `solid` | `rim` |
+| `style` | `acrylic` `rim` `glow` `bar` `solid` `brutal` | `rim` |
 | `layout` | `card` `pill` | `card` |
 | `accent` | hex color, `#` optional | `4FB3FF` |
 | `bg` `fg` `muted` | hex color, overrides the style's palette | – |
