@@ -1,3 +1,4 @@
+import { mix, readableInk } from "../color";
 import { outline } from "./shape";
 import type { Style } from "./types";
 
@@ -41,7 +42,7 @@ export const bar: Style = {
             <rect {...outline(props)} />
           </clipPath>
         </defs>
-        <rect {...outline(props, 1)} fill={colors.bg} stroke="#e1e1dc" stroke-width="1" />
+        <rect {...outline(props, 1)} fill={colors.bg} stroke={mix(readableInk(colors.bg), colors.bg, 0.12)} stroke-width="1" />
         <rect {...accentBar} fill={accent} clip-path={`url(#${id("shape")})`} />
       </>
     );
