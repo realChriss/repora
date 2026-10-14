@@ -33,7 +33,7 @@ export const glow: Style = {
   },
   pill: { padding: 7, iconSize: 26, fontSize: 12.5 },
   cardRadius: 12,
-  margin: 14,
+  margin: 8,
   titleFilter: "text-glow",
   dotFilter: "dot-glow",
   Frame: (props) => {
@@ -43,7 +43,7 @@ export const glow: Style = {
       <>
         <defs>
           <filter id={id("halo")} x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="5" />
+            <feGaussianBlur stdDeviation="3" />
           </filter>
           <filter id={id("text-glow")} x="-20%" y="-60%" width="140%" height="220%">
             <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur" />

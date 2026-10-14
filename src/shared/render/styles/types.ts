@@ -48,6 +48,8 @@ export interface PillMetrics {
   leftInset?: number;
 }
 
+export type Margin = number | { right: number; bottom: number };
+
 export interface Style {
   font: FontName;
   colors: (accent: string) => Colors;
@@ -55,7 +57,7 @@ export interface Style {
   pill: PillMetrics;
   cardRadius: number;
   pillRadius?: number;
-  margin?: number;
+  margin?: Margin;
   splitOwner?: boolean;
   titleFilter?: string;
   dotFilter?: string;

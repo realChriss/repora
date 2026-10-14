@@ -6,6 +6,7 @@ import type { CardContent, Sized, Theme } from "./parts";
 import { layoutPill } from "./pill";
 import { ELLIPSIS, wrapLines } from "./text";
 import { styles } from "./styles";
+import type { Margin } from "./styles/types";
 
 export type { CardContent } from "./parts";
 
@@ -90,15 +91,17 @@ export function renderError(message: string): string {
 
 function svgDocument(
   sized: Sized,
-  margin: number,
+  margin: Margin,
   fontFamily: string,
   css: string,
   label: string,
   children: Child[],
   scale = 1,
 ) {
-  const width = sized.width + margin * 2;
-  const height = sized.height + margin * 2;
+  const [left, top, right, bottom] =
+    typeof margin === "number" ? [margin, margin, margin, margin] : [0, 0, margin.right, margin.bottom];
+  const width = sized.width + left + right;
+  const height = sized.height + top + bottom;
   const svg = (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -111,7 +114,7 @@ function svgDocument(
     >
       <title>{label}</title>
       {css && <style>{css}</style>}
-      <g transform={`translate(${margin} ${margin})`}>{children}</g>
+      <g transform={`translate(${left} ${top})`}>{children}</g>
     </svg>
   );
   return svg.toString();
