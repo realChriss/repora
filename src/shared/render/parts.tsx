@@ -160,28 +160,18 @@ export interface MetaStyle {
   size: number;
   weight: FontWeight;
   dotSize: number;
-  chip?: string;
 }
 
-const CHIP_PADDING_X = 10;
 const ICON_GAP = 6;
 const STAR_GAP = 4;
 
 const starSize = (size: number) => size * 0.95;
 
-function contentWidth(item: MetaItem, meta: MetaStyle, theme: Theme): number {
+export function metaItemWidth(item: MetaItem, meta: MetaStyle, theme: Theme): number {
   const text = textWidth(theme, item.text, meta.size, meta.weight);
   if (item.kind === "language") return meta.dotSize + ICON_GAP + text;
   if (item.kind === "stars") return starSize(meta.size) + STAR_GAP + text;
   return text;
-}
-
-export function metaItemWidth(item: MetaItem, meta: MetaStyle, theme: Theme): number {
-  return contentWidth(item, meta, theme) + (meta.chip ? CHIP_PADDING_X * 2 : 0);
-}
-
-export function chipHeight(size: number): number {
-  return size + 11;
 }
 
 // Octicons star-fill-16, MIT
@@ -198,17 +188,10 @@ interface MetaItemProps {
 
 export function MetaItemView({ item, meta, theme, x, y }: MetaItemProps) {
   const { colors, style } = theme;
-  const textColor = meta.chip ? colors.fg : colors.muted;
-  const width = metaItemWidth(item, meta, theme);
-  const height = chipHeight(meta.size);
-  let cursor = x + (meta.chip ? CHIP_PADDING_X : 0);
-
-  const chip = meta.chip && (
-    <rect x={x} y={y - height / 2} width={width} height={height} rx={height / 2} fill={meta.chip} />
-  );
+  let cursor = x;
 
   let marker = null;
-  let color = textColor;
+  let color = colors.muted;
   if (item.kind === "language") {
     marker = <circle cx={cursor + meta.dotSize / 2} cy={y} r={meta.dotSize / 2} fill={item.dot} {...filterUrl(theme, style.dotFilter)} />;
     cursor += meta.dotSize + ICON_GAP;
@@ -223,7 +206,6 @@ export function MetaItemView({ item, meta, theme, x, y }: MetaItemProps) {
 
   return (
     <>
-      {chip}
       {marker}
       <text x={cursor} y={y} dominant-baseline="central" font-size={meta.size} font-weight={meta.weight} fill={color}>
         {item.text}

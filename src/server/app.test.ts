@@ -161,7 +161,7 @@ test("renders repos without description or language", async () => {
     stargazers_count: 0,
     forks_count: 0,
   });
-  const body = await (await app.request("/someone/empty?style=tinted")).text();
+  const body = await (await app.request("/someone/empty?style=solid")).text();
   expect(body).toContain("someone/empty");
   expect(body).toContain("0 forks");
 });

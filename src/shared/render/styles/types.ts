@@ -13,7 +13,6 @@ export interface Colors {
   monogramFg: string;
   monogramStroke?: string;
   monogramGradient?: [string, string];
-  chip?: string;
   dot?: string;
 }
 

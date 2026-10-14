@@ -1,6 +1,5 @@
 import type { Child } from "hono/jsx";
 import {
-  chipHeight,
   IconBadge,
   MetaItemView,
   metaItems,
@@ -71,8 +70,8 @@ export function layoutCard(content: CardContent, theme: Theme, width: number): S
 
   const items = metaItems(content, theme.colors);
   if (items.length) {
-    const meta: MetaStyle = { size: m.metaSize, weight: m.metaWeight, dotSize: m.dotSize, chip: theme.colors.chip };
-    const rowHeight = meta.chip ? chipHeight(m.metaSize) : m.metaSize * 1.4;
+    const meta: MetaStyle = { size: m.metaSize, weight: m.metaWeight, dotSize: m.dotSize };
+    const rowHeight = m.metaSize * 1.4;
     const center = y + GAP + rowHeight / 2;
     let x = left;
     for (const item of items) {

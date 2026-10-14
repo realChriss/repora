@@ -1,10 +1,9 @@
-export const STYLE_NAMES = ["acrylic", "rim", "tinted", "glow", "bar", "solid"] as const;
+export const STYLE_NAMES = ["acrylic", "rim", "glow", "bar", "solid"] as const;
 export type StyleName = (typeof STYLE_NAMES)[number];
 
 export const STYLE_HINTS: Record<StyleName, string> = {
   acrylic: "Smoked glass with a sheen",
   rim: "Dark glass, lit edge",
-  tinted: "Accent-washed fill",
   glow: "Dark with a neon edge",
   bar: "Light with an accent bar",
   solid: "Full accent color",

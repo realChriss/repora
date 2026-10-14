@@ -15,7 +15,7 @@ test("text stays readable on every style for light and dark accents", () => {
         ["title", c.title, bg, 4.5],
         ["muted", c.muted, bg, 4.5],
         ["description", c.description, bg, 4.5],
-        ["star", c.star, c.chip ?? bg, 4.5],
+        ["star", c.star, bg, 4.5],
         ["monogram", c.monogramFg, monogramBg, 3],
       ];
       for (const [label, fg, back, min] of checks) {

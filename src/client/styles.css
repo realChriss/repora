@@ -291,6 +291,10 @@ input[aria-invalid] {
     background-color 0.2s var(--ease);
 }
 
+.style-option:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
 .style-option:hover {
   border-color: var(--line-strong);
 }
