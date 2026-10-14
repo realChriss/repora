@@ -12,8 +12,6 @@ export const brutal: Style = {
     bg: mix(accent, "#ffffff", 0.2),
     title: INK,
     muted: "#383838",
-    description: "#383838",
-    star: INK,
     monogramBg: accent,
     monogramFg: readableInk(accent),
     monogramStroke: INK,

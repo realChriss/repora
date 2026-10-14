@@ -57,7 +57,7 @@ export function layoutCard(content: CardContent, theme: Theme, width: number): S
     const rtl = isRtl(content.description);
     y += GAP;
     rows.push(
-      <text font-size={m.descriptionSize} fill={theme.colors.description} text-anchor={rtl ? "end" : undefined}>
+      <text font-size={m.descriptionSize} fill={theme.colors.muted} text-anchor={rtl ? "end" : undefined}>
         {lines.map((line, i) => (
           <tspan x={rtl ? left + innerWidth : left} y={y + lineHeight * (i + 0.5)} dominant-baseline="central">
             {line}

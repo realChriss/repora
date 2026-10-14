@@ -10,8 +10,6 @@ export const bar: Style = {
     bg: "#ffffff",
     title: "#1b1d20",
     muted: "#4b5058",
-    description: "#4b5058",
-    star: "#4b5058",
     monogramBg: "#f1f1ee",
     monogramFg: "#1b1d20",
   }),

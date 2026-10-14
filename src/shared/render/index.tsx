@@ -1,6 +1,7 @@
 import type { Child } from "hono/jsx";
 import type { Layout, StyleName } from "../card-options";
 import { layoutCard } from "./card";
+import { ensureContrast } from "./color";
 import { fontFaceCss, fontStack, measure, type Embed } from "./fonts";
 import type { CardContent, Sized, Theme } from "./parts";
 import { layoutPill } from "./pill";
@@ -26,8 +27,8 @@ function themeFor({ style: name, accent, bg, fg, muted }: Appearance, idPrefix: 
   const colors = { ...style.colors(accent) };
   if (bg) colors.bg = bg;
   if (fg) colors.title = fg;
-  if (muted) colors.muted = colors.description = colors.star = muted;
-  return { style, colors, id: (name) => `${idPrefix}-${name}` };
+  if (muted) colors.muted = muted;
+  return { style, colors, star: ensureContrast(accent, colors.bg), id: (name) => `${idPrefix}-${name}` };
 }
 
 // Every fixed text a card draws must be listed, or the subset font lacks its glyphs.

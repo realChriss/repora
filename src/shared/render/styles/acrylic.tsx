@@ -1,4 +1,4 @@
-import { ensureContrast, mix, readableInk } from "../color";
+import { mix, readableInk } from "../color";
 import { outline } from "./shape";
 import type { Style } from "./types";
 
@@ -10,8 +10,6 @@ export const acrylic: Style = {
     bg: BG,
     title: "#eef0f3",
     muted: "#a4abb5",
-    description: "#a4abb5",
-    star: ensureContrast(accent, BG),
     monogramBg: accent,
     monogramFg: readableInk(accent),
   }),

@@ -12,8 +12,6 @@ export const glow: Style = {
       bg: BG,
       title: lit,
       muted: "#98a0ab",
-      description: "#98a0ab",
-      star: "#98a0ab",
       monogramBg: "none",
       monogramFg: lit,
       monogramStroke: lit,

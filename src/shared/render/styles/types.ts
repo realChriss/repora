@@ -6,8 +6,6 @@ export interface Colors {
   bg: string;
   title: string;
   muted: string;
-  description: string;
-  star: string;
   monogramBg: string;
   monogramFg: string;
   monogramStroke?: string;

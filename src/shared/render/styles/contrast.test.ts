@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { STYLE_NAMES } from "../../card-options";
-import { contrast } from "../color";
+import { contrast, ensureContrast } from "../color";
 import { styles } from "./index";
 
 const ACCENTS = ["#4FB3FF", "#FFE600", "#4ADE9B", "#1E3A8A", "#7F1D1D", "#111111", "#FFFFFF"];
@@ -14,8 +14,7 @@ test("text stays readable on every style for light and dark accents", () => {
       const checks: [string, string, string, number][] = [
         ["title", c.title, bg, 4.5],
         ["muted", c.muted, bg, 4.5],
-        ["description", c.description, bg, 4.5],
-        ["star", c.star, bg, 4.5],
+        ["star", ensureContrast(accent, bg), bg, 4.5],
         ["monogram", c.monogramFg, monogramBg, 3],
       ];
       for (const [label, fg, back, min] of checks) {

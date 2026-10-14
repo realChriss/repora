@@ -10,8 +10,6 @@ export const solid: Style = {
       bg: accent,
       title: ink,
       muted: ink,
-      description: ink,
-      star: ink,
       monogramBg: ink,
       monogramFg: accent,
       dot: ink,

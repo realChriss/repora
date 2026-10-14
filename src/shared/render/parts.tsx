@@ -25,6 +25,7 @@ export interface Sized {
 export interface Theme {
   style: Style;
   colors: Colors;
+  star: string;
   id: IdFor;
 }
 
@@ -197,7 +198,7 @@ export function MetaItemView({ item, meta, theme, x, y }: MetaItemProps) {
     cursor += meta.dotSize + ICON_GAP;
   } else if (item.kind === "stars") {
     const size = starSize(meta.size);
-    color = colors.star;
+    color = theme.star;
     marker = (
       <path d={STAR_PATH} fill={color} transform={`translate(${cursor} ${y - size / 2}) scale(${size / 16})`} />
     );
