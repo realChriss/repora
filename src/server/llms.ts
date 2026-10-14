@@ -33,8 +33,8 @@ Or as HTML, for example to center it:
 |---|---|---|
 | \`style\` | ${code(STYLE_NAMES)}, see Styles | \`${DEFAULTS.style}\` |
 | \`layout\` | ${code(LAYOUTS)}; \`pill\` is a compact one-line badge | \`${DEFAULTS.layout}\` |
-| \`accent\` | hex color | \`${DEFAULTS.accent.slice(1)}\` |
-| \`bg\` \`fg\` \`muted\` | hex color for the background, text and muted text | the style's colors |
+| \`accent\` | hex color; also colors the star count | \`${DEFAULTS.accent.slice(1)}\` |
+| \`bg\` \`fg\` \`muted\` | hex color for the background, the title, and the description and stats | the style's colors |
 | \`width\` | whole number from ${WIDTH.min} to ${WIDTH.max}, card layout only | \`${DEFAULTS.width}\` |
 | \`scale\` | number from ${SCALE.min} to ${SCALE.max}; multiplies the image size without changing the layout | \`${DEFAULTS.scale}\` |
 | \`icon\` | path to an image inside the repository, see step 2 | first letter |
