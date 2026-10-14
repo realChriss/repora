@@ -17,7 +17,7 @@
   src: url(/assets/fonts/fira-400.woff2) format("woff2");
 }
 
-/* Radius rule: panels 12px, controls 8px, color swatches round. */
+/* Radius rule: panels 12px, controls 8px. */
 :root {
   --page: #f3f4f6;
   --surface: #fcfcfd;
@@ -390,13 +390,6 @@ input[aria-invalid] {
   opacity: 0.45;
 }
 
-.accent-row {
-  display: grid;
-  grid-template-columns: minmax(0, 168px) auto;
-  align-items: center;
-  gap: 10px;
-}
-
 .color-input {
   display: grid;
   grid-template-columns: 40px minmax(0, 1fr);
@@ -510,32 +503,6 @@ hex-color-picker::part(hue-pointer) {
   color: var(--text);
 }
 
-.presets {
-  display: flex;
-  gap: 8px;
-  padding-left: 4px;
-}
-
-.preset {
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border: 2px solid var(--surface);
-  border-radius: 50%;
-  background: var(--swatch);
-  box-shadow: 0 0 0 1px var(--line-strong);
-  cursor: pointer;
-  transition: transform 0.2s var(--ease);
-}
-
-.preset:hover {
-  transform: scale(1.1);
-}
-
-.preset:active {
-  transform: scale(0.95);
-}
-
 .flag-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -559,33 +526,19 @@ hex-color-picker::part(hue-pointer) {
   accent-color: var(--accent);
 }
 
-.more {
-  border-top: 1px solid var(--line);
-  padding-top: 16px;
-}
-
-.more summary {
-  color: var(--text);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.more-body {
-  display: grid;
-  gap: 16px;
-  padding-top: 16px;
-}
-
 .color-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 12px;
+}
+
+.color-grid label {
+  color: var(--muted);
+  font-weight: 500;
 }
 
 @media (max-width: 480px) {
-  .row,
-  .color-grid {
+  .row {
     grid-template-columns: minmax(0, 1fr);
   }
 

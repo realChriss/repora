@@ -74,11 +74,10 @@ interface ColorInputProps {
   color: string;
   invalid: boolean;
   optional?: boolean;
-  inputLabel?: string;
   onChange: (value: string) => void;
 }
 
-export function ColorInput({ id, label, value, color, invalid, optional, inputLabel, onChange }: ColorInputProps) {
+export function ColorInput({ id, label, value, color, invalid, optional, onChange }: ColorInputProps) {
   const swatch = useRef<HTMLButtonElement>(null);
   const popover = useRef<HTMLDivElement>(null);
   const picker = useRef<HexColorPicker>(null);
@@ -132,7 +131,6 @@ export function ColorInput({ id, label, value, color, invalid, optional, inputLa
         value={value}
         placeholder={optional ? color : undefined}
         autocomplete="off"
-        aria-label={inputLabel}
         aria-invalid={invalid ? "true" : undefined}
         aria-describedby={`${id}-error`}
         onInput={(event: Event) => onChange((event.target as HTMLInputElement).value)}

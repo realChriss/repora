@@ -14,9 +14,8 @@ const FLAG_LABELS: Record<Flag, string> = {
   show_forks: "Forks",
 };
 
-const ACCENT_PRESETS = ["#4FB3FF", "#B48CFF", "#4ADE9B", "#FF8A5B"];
-
-const CUSTOM_COLORS = [
+const COLORS = [
+  { id: "accent", label: "Accent" },
   { id: "bg", label: "Background" },
   { id: "fg", label: "Text" },
   { id: "muted", label: "Muted text" },
@@ -138,33 +137,23 @@ function App() {
           />
         </fieldset>
 
-        <fieldset class="accent">
-          <legend>Accent</legend>
-          <div class="accent-row">
-            <ColorInput
-              id="accent"
-              label="Accent"
-              inputLabel="Accent hex color"
-              value={form.accent}
-              color={colors.accent}
-              invalid={Boolean(errors.accent)}
-              onChange={set("accent")}
-            />
-            <div class="presets">
-              {ACCENT_PRESETS.map((color) => (
-                <button
-                  type="button"
-                  class="preset"
-                  style={`--swatch:${color}`}
-                  aria-label={`Use ${color}`}
-                  onClick={() => set("accent")(color)}
+        <fieldset>
+          <legend>Colors</legend>
+          <div class="color-grid">
+            {COLORS.map(({ id, label }) => (
+              <Field id={id} label={label} error={errors[id]}>
+                <ColorInput
+                  id={id}
+                  label={label}
+                  value={form[id]}
+                  color={colors[id]}
+                  invalid={Boolean(errors[id])}
+                  optional={id !== "accent"}
+                  onChange={set(id)}
                 />
-              ))}
-            </div>
+              </Field>
+            ))}
           </div>
-          <p class="error" id="accent-error" role="alert">
-            {errors.accent}
-          </p>
         </fieldset>
 
         <fieldset class="flags">
@@ -194,27 +183,6 @@ function App() {
             onInput={(event: Event) => set("icon")(inputValue(event))}
           />
         </Field>
-
-        <details class="more">
-          <summary>Custom colors</summary>
-          <div class="more-body">
-            <div class="color-grid">
-              {CUSTOM_COLORS.map(({ id, label }) => (
-                <Field id={id} label={label} error={errors[id]}>
-                  <ColorInput
-                    id={id}
-                    label={label}
-                    value={form[id]}
-                    color={colors[id]}
-                    invalid={Boolean(errors[id])}
-                    optional
-                    onChange={set(id)}
-                  />
-                </Field>
-              ))}
-            </div>
-          </div>
-        </details>
       </form>
 
       <section class="output" aria-label="Preview and link">
