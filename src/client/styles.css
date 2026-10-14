@@ -421,10 +421,6 @@ input[aria-invalid] {
   border-color: var(--muted);
 }
 
-.swatch[data-default] {
-  border-style: dashed;
-}
-
 .color-popover {
   position: absolute;
   inset: auto;

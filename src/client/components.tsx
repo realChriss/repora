@@ -115,7 +115,6 @@ export function ColorInput({ id, label, value, color, invalid, optional, onChang
         popovertarget={`${id}-popover`}
         aria-label={`Pick ${label.toLowerCase()} color`}
         style={`--swatch:${color}`}
-        data-default={optional && !value.trim()}
       />
       <div ref={popover} id={`${id}-popover`} class="color-popover" popover="auto" onToggle={onToggle}>
         <hex-color-picker ref={picker} />
