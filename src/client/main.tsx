@@ -28,6 +28,8 @@ const PREVIEW_MESSAGES: Partial<Record<PreviewStatus, string>> = {
 
 const inputValue = (event: Event) => (event.target as HTMLInputElement).value;
 
+const fill = (value: number, { min, max }: { min: number; max: number }) => `--fill:${(value - min) / (max - min)}`;
+
 function App() {
   const [form, setForm] = useState(INITIAL_FORM);
   const [canvas, setCanvas] = useState<"dark" | "light">("dark");
@@ -114,6 +116,7 @@ function App() {
               max={WIDTH.max}
               step="10"
               value={form.width}
+              style={fill(form.width, WIDTH)}
               aria-label="Card width in pixels"
               onInput={(event: Event) => set("width")(Number(inputValue(event)))}
             />
@@ -131,6 +134,7 @@ function App() {
             max={SCALE.max}
             step="0.05"
             value={form.scale}
+            style={fill(form.scale, SCALE)}
             aria-label="Image scale"
             onInput={(event: Event) => set("scale")(Number(inputValue(event)))}
           />
