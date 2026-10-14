@@ -4,7 +4,6 @@ import type { FontName, FontWeight } from "../fonts";
 
 export interface Colors {
   bg: string;
-  fg: string;
   title: string;
   muted: string;
   description: string;

@@ -113,7 +113,7 @@ export function effectiveColors(form: Form): Record<ColorField, string> {
   return {
     accent,
     bg: valid(form.bg) ?? normalizeHex(defaults.bg),
-    fg: valid(form.fg) ?? normalizeHex(defaults.fg),
+    fg: valid(form.fg) ?? normalizeHex(defaults.title),
     muted: valid(form.muted) ?? normalizeHex(defaults.muted),
   };
 }

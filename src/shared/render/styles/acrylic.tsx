@@ -8,7 +8,6 @@ export const acrylic: Style = {
   font: "inter",
   colors: (accent) => ({
     bg: BG,
-    fg: "#eef0f3",
     title: "#eef0f3",
     muted: "#a4abb5",
     description: "#a4abb5",

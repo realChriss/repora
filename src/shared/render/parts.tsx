@@ -114,7 +114,7 @@ function titleRuns({ owner, name }: CardContent, theme: Theme) {
   if (!owner) return [{ text: name, color: colors.title, weight: 600 as const }];
   if (!style.splitOwner) return [{ text: `${owner}/${name}`, color: colors.title, weight: 600 as const }];
   return [
-    { text: `${owner} / `, color: colors.muted, weight: 400 as const },
+    { text: `${owner} / `, color: colors.title, weight: 400 as const },
     { text: name, color: colors.title, weight: 600 as const },
   ];
 }

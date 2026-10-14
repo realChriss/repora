@@ -8,7 +8,6 @@ export const bar: Style = {
   font: "inter",
   colors: () => ({
     bg: "#ffffff",
-    fg: "#1b1d20",
     title: "#1b1d20",
     muted: "#4b5058",
     description: "#4b5058",

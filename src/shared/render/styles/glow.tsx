@@ -10,7 +10,6 @@ export const glow: Style = {
     const lit = ensureContrast(accent, BG);
     return {
       bg: BG,
-      fg: "#e6e9ee",
       title: lit,
       muted: "#98a0ab",
       description: "#98a0ab",

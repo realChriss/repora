@@ -8,7 +8,6 @@ export const solid: Style = {
     const ink = readableInk(accent);
     return {
       bg: accent,
-      fg: ink,
       title: ink,
       muted: ink,
       description: ink,

@@ -24,7 +24,7 @@ function themeFor({ style: name, accent, bg, fg, muted }: Appearance, idPrefix: 
   const style = styles[name];
   const colors = { ...style.colors(accent) };
   if (bg) colors.bg = bg;
-  if (fg) colors.fg = colors.title = fg;
+  if (fg) colors.title = fg;
   if (muted) colors.muted = colors.description = colors.star = muted;
   return { style, colors, id: (name) => `${idPrefix}-${name}` };
 }
