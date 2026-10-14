@@ -23,7 +23,7 @@ It takes about 10 s. It needs `bun`, `ffmpeg` (with `libwebp_anim`) and Edge. To
 ## Tuning
 
 - Change which cards appear by editing `VARIANTS` in `render.sh`. Include every style in `STYLE_NAMES`, a few pills, and a mix of accents.
-- `HOLD`, `FADE` (seconds), `FPS` and `QUALITY` sit at the top of the script. Fades use 30 fps and 0.5 s because 15 fps looked choppy. Fade frames make up almost all of the file size: 30 fps is about 1.3 MB and 15 fps about half that, and lowering `QUALITY` barely helps.
+- `HOLD`, `FADE` (seconds), `FPS` and `QUALITY` sit at the top of the script. Fade frames make up over 90% of the file, so `FPS` is the main size lever. 15 fps looked choppy. 30 fps at q80 came to 1.3 MB; 24 fps at q70 comes to 0.8 MB, and hold frames look no different. Rendering at `scale=1.5` would save about 30% more but makes text soft on retina screens.
 - Keep `-compression_level 4`. Level 6 takes about 30 s to encode and only saves about 4%.
 - The README shows the image at `width="488"`, which is half the 2x canvas. Update the README `alt` text if the content changes.
 

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 OUT=${1:-assets/cards.webp}
-PORT=3123 HOLD=1 FADE=0.5 FPS=30 QUALITY=80
+PORT=3123 HOLD=1 FADE=0.5 FPS=24 QUALITY=70
 BROWSER=${BROWSER:-"/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe"}
 VARIANTS=(
   "style=rim&accent=4FB3FF"
