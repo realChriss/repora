@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "hono/jsx";
 import { render } from "hono/jsx/dom";
-import { FLAGS, SCALE, STYLE_HINTS, STYLE_NAMES, WIDTH, type Flag } from "../shared/card-options";
+import { FLAGS, SCALE, STYLE_NAMES, WIDTH, type Flag } from "../shared/card-options";
 import { ColorInput, Field, Segmented } from "./components";
 import { buildCard, effectiveColors, INITIAL_FORM, snippetFor, type Form, type Format } from "./form";
 import { usePreview, type PreviewStatus } from "./preview";
@@ -87,7 +87,6 @@ function App() {
                   onChange={() => set("style")(style)}
                 />
                 <span class="style-name">{style}</span>
-                <span class="style-hint">{STYLE_HINTS[style]}</span>
               </label>
             ))}
           </div>
