@@ -19,7 +19,7 @@
     "@fontsource/space-grotesk": "^5.3.0",
     "@hono/zod-validator": "^0.9.1",
     "fontkit": "^3.0.0",
-    "hono": "^4.13.19",
+    "hono": "^4.13.21",
     "hono-rate-limiter": "^0.5.4",
     "subset-font": "^2.9.0",
     "vanilla-colorful": "^0.7.2",
